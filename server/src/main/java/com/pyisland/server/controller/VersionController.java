@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/version")
+@RequestMapping("/api/v1/version")
 public class VersionController {
 
     private final AppVersionService appVersionService;
