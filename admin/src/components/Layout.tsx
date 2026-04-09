@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { clearToken, getUsername } from "../api";
-import { useState } from "react";
+import { clearToken, getUsername, users } from "../api";
+import { useState, useEffect } from "react";
 
 const navItems = [
   { label: "总览", path: "/" },
@@ -55,6 +55,18 @@ export default function Layout() {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(["版本管理", "人员管理"])
   );
+  const [avatar, setAvatar] = useState<string | null>(null);
+
+  useEffect(() => {
+    const username = getUsername();
+    if (username) {
+      users.getProfile(username).then((res) => {
+        if (res.code === 200 && res.data?.avatar) {
+          setAvatar(res.data.avatar);
+        }
+      }).catch(() => {});
+    }
+  }, []);
 
   const toggleSection = (label: string) => {
     setExpandedSections((prev) => {
@@ -176,8 +188,9 @@ export default function Layout() {
         >
           <NavLink
             to="/profile"
+            className="flex items-center"
             style={{
-              display: "block",
+              gap: 10,
               fontSize: 12,
               color: "rgba(255,255,255,0.48)",
               marginBottom: 8,
@@ -185,6 +198,26 @@ export default function Layout() {
               cursor: "pointer",
             }}
           >
+            <div
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                backgroundColor: "var(--apple-surface-2)",
+                backgroundImage: avatar ? `url(${avatar})` : "none",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 12,
+                fontWeight: 600,
+                color: "rgba(255,255,255,0.4)",
+                flexShrink: 0,
+              }}
+            >
+              {!avatar && getUsername().charAt(0).toUpperCase()}
+            </div>
             {getUsername()}
           </NavLink>
           <button
