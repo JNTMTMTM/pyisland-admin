@@ -5,14 +5,20 @@ import { useState } from "react";
 const navItems = [
   { label: "总览", path: "/" },
   {
-    label: "版本",
+    label: "版本管理",
     children: [
-      { label: "更新", path: "/version/update" },
-      { label: "创建", path: "/version/create" },
-      { label: "删除", path: "/version/delete" },
+      { label: "更新版本", path: "/version/update" },
+      { label: "创建版本", path: "/version/create" },
+      { label: "删除版本", path: "/version/delete" },
     ],
   },
-  { label: "人员管理", path: "/users" },
+  {
+    label: "人员管理",
+    children: [
+      { label: "管理员列表", path: "/users" },
+      { label: "添加管理员", path: "/users/add" },
+    ],
+  },
 ];
 
 const linkBase: React.CSSProperties = {
@@ -47,7 +53,7 @@ const subLinkActive: React.CSSProperties = {
 export default function Layout() {
   const navigate = useNavigate();
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    new Set(["版本"])
+    new Set(["版本管理", "人员管理"])
   );
 
   const toggleSection = (label: string) => {

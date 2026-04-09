@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { version, clearToken, getUsername, type AppVersion } from "../api";
+import { useState, useCallback } from "react";
+import { version, type AppVersion } from "../api";
 
 const inputStyle: React.CSSProperties = {
   padding: "10px 14px",
@@ -42,7 +41,6 @@ const sectionHeadingStyle: React.CSSProperties = {
 };
 
 export default function Dashboard() {
-  const navigate = useNavigate();
   const [searchName, setSearchName] = useState("");
   const [current, setCurrent] = useState<AppVersion | null>(null);
   const [notFound, setNotFound] = useState(false);
@@ -139,11 +137,6 @@ export default function Dashboard() {
     }
   };
 
-  const handleLogout = () => {
-    clearToken();
-    navigate("/login");
-  };
-
   const fillUpdateForm = () => {
     if (!current) return;
     setFormMode("update");
@@ -152,69 +145,14 @@ export default function Dashboard() {
     setFormDesc(current.description || "");
   };
 
-  useEffect(() => {
-    if (searchName && !current) handleSearch();
-  }, []);
-
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "var(--apple-black)" }}>
-      {/* Navigation — Apple glass nav */}
-      <header
-        className="sticky top-0 z-40"
-        style={{
-          height: 48,
-          backgroundColor: "rgba(0, 0, 0, 0.8)",
-          backdropFilter: "saturate(180%) blur(20px)",
-          WebkitBackdropFilter: "saturate(180%) blur(20px)",
-        }}
-      >
-        <div
-          className="flex items-center justify-between h-full mx-auto"
-          style={{ maxWidth: 980, padding: "0 24px" }}
-        >
-          <span
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: 21,
-              fontWeight: 600,
-              lineHeight: 1.19,
-              letterSpacing: "0.231px",
-              color: "#ffffff",
-            }}
-          >
-            PyIsland
-          </span>
-          <div className="flex items-center" style={{ gap: 20 }}>
-            <span
-              style={{
-                fontSize: 12,
-                fontWeight: 400,
-                color: "rgba(255, 255, 255, 0.8)",
-              }}
-            >
-              {getUsername()}
-            </span>
-            <button
-              onClick={handleLogout}
-              className="cursor-pointer border-none bg-transparent"
-              style={{
-                fontSize: 12,
-                fontWeight: 400,
-                color: "var(--apple-link-dark)",
-              }}
-            >
-              退出登录
-            </button>
-          </div>
-        </div>
-      </header>
-
+    <div style={{ padding: "48px 48px", maxWidth: 980 }}>
       {/* Toast */}
       {msg && (
         <div
           className="fixed z-50"
           style={{
-            top: 64,
+            top: 24,
             right: 24,
             padding: "10px 20px",
             borderRadius: 8,
@@ -231,38 +169,33 @@ export default function Dashboard() {
         </div>
       )}
 
-      <main className="mx-auto" style={{ maxWidth: 980, padding: "48px 24px" }}>
-        {/* Hero */}
-        <div className="text-center" style={{ marginBottom: 48 }}>
-          <h1
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: 56,
-              fontWeight: 600,
-              lineHeight: 1.07,
-              letterSpacing: "-0.28px",
-              color: "#ffffff",
-              margin: 0,
-            }}
-          >
-            版本管理
-          </h1>
-          <p
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: 21,
-              fontWeight: 400,
-              lineHeight: 1.19,
-              letterSpacing: "0.231px",
-              color: "rgba(255, 255, 255, 0.56)",
-              marginTop: 8,
-            }}
-          >
-            查询、创建和管理应用版本
-          </p>
-        </div>
+      {/* Hero */}
+      <h1
+        style={{
+          fontFamily: "var(--font-display)",
+          fontSize: 40,
+          fontWeight: 600,
+          lineHeight: 1.1,
+          color: "#ffffff",
+          margin: "0 0 8px",
+        }}
+      >
+        版本管理
+      </h1>
+      <p
+        style={{
+          fontSize: 21,
+          fontWeight: 400,
+          lineHeight: 1.19,
+          letterSpacing: "0.231px",
+          color: "rgba(255, 255, 255, 0.56)",
+          marginBottom: 40,
+        }}
+      >
+        查询、创建和管理应用版本
+      </p>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
           {/* Search Section — light gray */}
           <section style={{ ...sectionStyle, backgroundColor: "var(--apple-gray)", borderRadius: 12 }}>
             <h2 style={{ ...sectionHeadingStyle, color: "var(--apple-near-black)" }}>
@@ -482,8 +415,7 @@ export default function Dashboard() {
               </button>
             </form>
           </section>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }

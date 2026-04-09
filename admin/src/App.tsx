@@ -6,7 +6,8 @@ import Overview from "./pages/Overview";
 import VersionUpdate from "./pages/VersionUpdate";
 import VersionCreate from "./pages/VersionCreate";
 import VersionDelete from "./pages/VersionDelete";
-import Users from "./pages/Users";
+import UserList from "./pages/UserList";
+import UserAdd from "./pages/UserAdd";
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   return isLoggedIn() ? children : <Navigate to="/login" replace />;
@@ -28,7 +29,8 @@ export default function App() {
           <Route path="/version/update" element={<VersionUpdate />} />
           <Route path="/version/create" element={<VersionCreate />} />
           <Route path="/version/delete" element={<VersionDelete />} />
-          <Route path="/users" element={<Users />} />
+          <Route path="/users" element={<UserList />} />
+          <Route path="/users/add" element={<UserAdd />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
