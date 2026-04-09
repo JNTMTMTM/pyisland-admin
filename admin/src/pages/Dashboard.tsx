@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { version, type AppVersion } from "../api";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 const inputStyle: React.CSSProperties = {
   padding: "10px 14px",
@@ -53,6 +54,7 @@ export default function Dashboard() {
   const [formVersion, setFormVersion] = useState("");
   const [formDesc, setFormDesc] = useState("");
   const [formMode, setFormMode] = useState<"create" | "update">("create");
+  const [confirmVisible, setConfirmVisible] = useState(false);
 
   const showMsg = (text: string, type: "ok" | "err" = "ok") => {
     setMsg(text);
@@ -122,7 +124,7 @@ export default function Dashboard() {
 
   const handleDelete = async () => {
     if (!current) return;
-    if (!confirm(`确定删除 ${current.appName} 吗？`)) return;
+    setConfirmVisible(false);
     try {
       const res = await version.delete(current.appName);
       if (res.code === 200) {
@@ -261,7 +263,7 @@ export default function Dashboard() {
                     编辑
                   </button>
                   <button
-                    onClick={handleDelete}
+                    onClick={() => setConfirmVisible(true)}
                     className="cursor-pointer"
                     style={{
                       padding: "4px 14px",
@@ -416,6 +418,15 @@ export default function Dashboard() {
             </form>
           </section>
       </div>
+      <ConfirmDialog
+        visible={confirmVisible}
+        title="删除确认"
+        message={`确定要删除 ${current?.appName ?? ""} 吗？此操作不可撤销。`}
+        confirmText="删除"
+        danger
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmVisible(false)}
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { version, type AppVersion } from "../api";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 const cardStyle: React.CSSProperties = {
   backgroundColor: "var(--apple-surface-1)",
@@ -20,6 +21,7 @@ export default function VersionDelete() {
   const [msg, setMsg] = useState("");
   const [msgType, setMsgType] = useState<"ok" | "err">("ok");
   const [loading, setLoading] = useState(true);
+  const [confirmVisible, setConfirmVisible] = useState(false);
 
   const showMsg = (text: string, type: "ok" | "err" = "ok") => {
     setMsg(text);
@@ -44,7 +46,7 @@ export default function VersionDelete() {
 
   const handleDelete = async () => {
     if (!selected) return;
-    if (!confirm(`确定删除 ${selected.appName} 吗？`)) return;
+    setConfirmVisible(false);
     try {
       const res = await version.delete(selected.appName);
       if (res.code === 200) {
@@ -176,7 +178,7 @@ export default function VersionDelete() {
             </div>
           </div>
           <button
-            onClick={handleDelete}
+            onClick={() => setConfirmVisible(true)}
             className="cursor-pointer"
             style={{
               padding: "8px 20px",
@@ -194,6 +196,15 @@ export default function VersionDelete() {
           </button>
         </div>
       )}
+      <ConfirmDialog
+        visible={confirmVisible}
+        title="删除确认"
+        message={`确定要删除 ${selected?.appName ?? ""} 吗？此操作不可撤销。`}
+        confirmText="删除"
+        danger
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmVisible(false)}
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { users, type AdminUserInfo } from "../api";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 const inputStyle: React.CSSProperties = {
   padding: "10px 14px",
@@ -47,6 +48,8 @@ export default function UsersPage() {
   const [newPassword, setNewPassword] = useState("");
   const [msg, setMsg] = useState("");
   const [msgType, setMsgType] = useState<"ok" | "err">("ok");
+  const [confirmVisible, setConfirmVisible] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState("");
 
   const showMsg = (text: string, type: "ok" | "err" = "ok") => {
     setMsg(text);
@@ -86,10 +89,16 @@ export default function UsersPage() {
     }
   };
 
-  const handleDelete = async (username: string) => {
-    if (!confirm(`确定删除管理员 ${username} 吗？`)) return;
+  const requestDelete = (username: string) => {
+    setDeleteTarget(username);
+    setConfirmVisible(true);
+  };
+
+  const handleDelete = async () => {
+    setConfirmVisible(false);
+    if (!deleteTarget) return;
     try {
-      const res = await users.delete(username);
+      const res = await users.delete(deleteTarget);
       if (res.code === 200) {
         showMsg("删除成功");
         fetchUsers();
@@ -244,7 +253,7 @@ export default function UsersPage() {
                     <td style={tdStyle}>{u.createdAt}</td>
                     <td style={tdStyle}>
                       <button
-                        onClick={() => handleDelete(u.username)}
+                        onClick={() => requestDelete(u.username)}
                         className="cursor-pointer"
                         style={{
                           padding: "2px 12px",
@@ -266,6 +275,15 @@ export default function UsersPage() {
           </div>
         )}
       </div>
+      <ConfirmDialog
+        visible={confirmVisible}
+        title="删除确认"
+        message={`确定要删除管理员 ${deleteTarget} 吗？此操作不可撤销。`}
+        confirmText="删除"
+        danger
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmVisible(false)}
+      />
     </div>
   );
 }
