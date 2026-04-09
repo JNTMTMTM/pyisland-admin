@@ -1,12 +1,6 @@
 import { useState, useEffect } from "react";
 import { version, users, type AppVersion } from "../api";
 
-const cardStyle: React.CSSProperties = {
-  backgroundColor: "var(--apple-surface-1)",
-  borderRadius: 12,
-  padding: 32,
-};
-
 const headingStyle: React.CSSProperties = {
   fontFamily: "var(--font-display)",
   fontSize: 21,
@@ -84,62 +78,80 @@ export default function Overview() {
       </div>
 
       {/* Version list */}
-      <div style={cardStyle}>
-        <h2 style={headingStyle}>版本一览</h2>
-        {versions.length === 0 ? (
-          <p style={{ color: "rgba(255,255,255,0.48)", fontSize: 14 }}>暂无版本数据</p>
-        ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr>
-                  {["应用名称", "版本号", "描述", "更新时间"].map((h) => (
-                    <th
-                      key={h}
-                      style={{
-                        textAlign: "left",
-                        padding: "8px 12px",
-                        fontSize: 12,
-                        fontWeight: 600,
-                        lineHeight: 1.33,
-                        letterSpacing: "-0.12px",
-                        color: "rgba(255,255,255,0.48)",
-                        textTransform: "uppercase",
-                        borderBottom: "1px solid rgba(255,255,255,0.08)",
-                      }}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {versions.map((v) => (
-                  <tr key={v.id}>
-                    {[v.appName, v.version, v.description || "-", v.updatedAt].map(
-                      (val, i) => (
-                        <td
-                          key={i}
-                          style={{
-                            padding: "10px 12px",
-                            fontSize: 14,
-                            lineHeight: 1.43,
-                            letterSpacing: "-0.224px",
-                            color: "#ffffff",
-                            borderBottom: "1px solid rgba(255,255,255,0.04)",
-                          }}
-                        >
-                          {val}
-                        </td>
-                      )
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      <h2 style={headingStyle}>版本一览</h2>
+      {versions.length === 0 ? (
+        <p style={{ color: "rgba(255,255,255,0.48)", fontSize: 14 }}>暂无版本数据</p>
+      ) : (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+            gap: 16,
+          }}
+        >
+          {versions.map((v) => (
+            <div
+              key={v.id}
+              style={{
+                backgroundColor: "var(--apple-surface-1)",
+                borderRadius: 12,
+                padding: "20px 24px",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  marginBottom: 10,
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 17,
+                    fontWeight: 600,
+                    color: "#ffffff",
+                  }}
+                >
+                  {v.appName}
+                </div>
+                <div
+                  style={{
+                    padding: "2px 10px",
+                    borderRadius: 980,
+                    backgroundColor: "var(--apple-blue)",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "#ffffff",
+                    whiteSpace: "nowrap",
+                    marginLeft: 12,
+                  }}
+                >
+                  v{v.version}
+                </div>
+              </div>
+              <div
+                style={{
+                  fontSize: 14,
+                  color: "rgba(255,255,255,0.56)",
+                  lineHeight: 1.43,
+                  marginBottom: 8,
+                }}
+              >
+                {v.description || "无描述"}
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "rgba(255,255,255,0.32)",
+                }}
+              >
+                更新于 {v.updatedAt}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
