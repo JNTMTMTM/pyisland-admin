@@ -8,15 +8,17 @@ public class AppVersion {
     private String appName;
     private String version;
     private String description;
+    private String downloadUrl;
     private LocalDateTime updatedAt;
 
     public AppVersion() {
     }
 
-    public AppVersion(String appName, String version, String description) {
+    public AppVersion(String appName, String version, String description, String downloadUrl) {
         this.appName = appName;
         this.version = version;
         this.description = description;
+        this.downloadUrl = downloadUrl;
         this.updatedAt = java.time.LocalDateTime.now();
     }
 
@@ -50,6 +52,14 @@ public class AppVersion {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getDownloadUrl() {
+        return downloadUrl;
+    }
+
+    public void setDownloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl;
     }
 
     public java.time.LocalDateTime getUpdatedAt() {

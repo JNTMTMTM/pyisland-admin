@@ -71,14 +71,16 @@ public class VersionController {
 
         String newDesc = request.description() == null ? "" : request.description();
         String oldDesc = existing.getDescription() == null ? "" : existing.getDescription();
-        if (existing.getVersion().equals(request.version()) && oldDesc.equals(newDesc)) {
+        String newUrl = request.downloadUrl() == null ? "" : request.downloadUrl();
+        String oldUrl = existing.getDownloadUrl() == null ? "" : existing.getDownloadUrl();
+        if (existing.getVersion().equals(request.version()) && oldDesc.equals(newDesc) && oldUrl.equals(newUrl)) {
             return ResponseEntity.ok(Map.of(
                     "code", 400,
                     "message", "没有修改内容，无需更新"
             ));
         }
 
-        AppVersion updated = appVersionService.updateVersion(appName, request.version(), request.description());
+        AppVersion updated = appVersionService.updateVersion(appName, request.version(), request.description(), request.downloadUrl());
         return ResponseEntity.ok(Map.of(
                 "code", 200,
                 "message", "版本号更新成功",
@@ -115,7 +117,7 @@ public class VersionController {
                     "message", "版本号不能为空"
             ));
         }
-        AppVersion created = appVersionService.createVersion(request.appName(), request.version(), request.description());
+        AppVersion created = appVersionService.createVersion(request.appName(), request.version(), request.description(), request.downloadUrl());
         if (created == null) {
             return ResponseEntity.ok(Map.of(
                     "code", 409,
@@ -129,9 +131,9 @@ public class VersionController {
         ));
     }
 
-    public record UpdateVersionRequest(String appName, String version, String description) {
+    public record UpdateVersionRequest(String appName, String version, String description, String downloadUrl) {
     }
 
-    public record CreateVersionRequest(String appName, String version, String description) {
+    public record CreateVersionRequest(String appName, String version, String description, String downloadUrl) {
     }
 }

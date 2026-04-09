@@ -27,26 +27,27 @@ public class AppVersionService {
         return appVersionMapper.deleteByAppName(appName) > 0;
     }
 
-    public AppVersion createVersion(String appName, String version, String description) {
+    public AppVersion createVersion(String appName, String version, String description, String downloadUrl) {
         AppVersion existing = appVersionMapper.selectByAppName(appName);
         if (existing != null) {
             return null;
         }
-        AppVersion appVersion = new AppVersion(appName, version, description);
+        AppVersion appVersion = new AppVersion(appName, version, description, downloadUrl);
         appVersionMapper.insert(appVersion);
         return appVersion;
     }
 
-    public AppVersion updateVersion(String appName, String version, String description) {
+    public AppVersion updateVersion(String appName, String version, String description, String downloadUrl) {
         AppVersion existing = appVersionMapper.selectByAppName(appName);
         if (existing != null) {
             existing.setVersion(version);
             existing.setDescription(description);
+            existing.setDownloadUrl(downloadUrl);
             existing.setUpdatedAt(LocalDateTime.now());
             appVersionMapper.updateByAppName(existing);
             return existing;
         } else {
-            AppVersion appVersion = new AppVersion(appName, version, description);
+            AppVersion appVersion = new AppVersion(appName, version, description, downloadUrl);
             appVersionMapper.insert(appVersion);
             return appVersion;
         }

@@ -8,24 +8,26 @@
         <result property="appName" column="app_name"/>
         <result property="version" column="version"/>
         <result property="description" column="description"/>
+        <result property="downloadUrl" column="download_url"/>
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
     <select id="selectByAppName" resultMap="AppVersionResultMap">
-        SELECT id, app_name, version, description, updated_at
+        SELECT id, app_name, version, description, download_url, updated_at
         FROM app_version
         WHERE app_name = #{appName}
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO app_version (app_name, version, description, updated_at)
-        VALUES (#{appName}, #{version}, #{description}, #{updatedAt})
+        INSERT INTO app_version (app_name, version, description, download_url, updated_at)
+        VALUES (#{appName}, #{version}, #{description}, #{downloadUrl}, #{updatedAt})
     </insert>
 
     <update id="updateByAppName">
         UPDATE app_version
         SET version = #{version},
             description = #{description},
+            download_url = #{downloadUrl},
             updated_at = #{updatedAt}
         WHERE app_name = #{appName}
     </update>
@@ -36,7 +38,7 @@
     </delete>
 
     <select id="selectAll" resultMap="AppVersionResultMap">
-        SELECT id, app_name, version, description, updated_at
+        SELECT id, app_name, version, description, download_url, updated_at
         FROM app_version
         ORDER BY updated_at DESC
     </select>
