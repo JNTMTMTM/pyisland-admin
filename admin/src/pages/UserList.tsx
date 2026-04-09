@@ -140,7 +140,7 @@ export default function UserList() {
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  {["ID", "用户名", "创建时间", "操作"].map((h) => (
+                  {["头像", "用户名", "创建时间", "操作"].map((h) => (
                     <th
                       key={h}
                       style={{
@@ -163,7 +163,27 @@ export default function UserList() {
               <tbody>
                 {list.map((u) => (
                   <tr key={u.id}>
-                    <td style={tdStyle}>{u.id}</td>
+                    <td style={tdStyle}>
+                      <div
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: "50%",
+                          backgroundColor: "var(--apple-surface-2)",
+                          backgroundImage: u.avatar ? `url(${u.avatar})` : "none",
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: "rgba(255,255,255,0.4)",
+                        }}
+                      >
+                        {!u.avatar && u.username.charAt(0).toUpperCase()}
+                      </div>
+                    </td>
                     <td style={tdStyle}>
                       {u.username}
                       {u.username === currentUser && (
