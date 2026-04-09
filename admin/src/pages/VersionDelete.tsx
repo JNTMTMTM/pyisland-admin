@@ -1,26 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { version, type AppVersion } from "../api";
 
-const inputStyle: React.CSSProperties = {
-  padding: "10px 14px",
-  backgroundColor: "var(--apple-surface-2)",
-  borderRadius: 8,
-  border: "none",
-  color: "#ffffff",
-  fontSize: 17,
-  lineHeight: 1.47,
-  letterSpacing: "-0.374px",
-  width: "100%",
-  outline: "none",
+const cardStyle: React.CSSProperties = {
+  backgroundColor: "var(--apple-surface-1)",
+  borderRadius: 12,
+  padding: "20px 24px",
+  cursor: "pointer",
+  transition: "all 0.15s",
+};
+
+const cardSelectedStyle: React.CSSProperties = {
+  ...cardStyle,
+  outline: "2px solid #ff453a",
 };
 
 export default function VersionDelete() {
-  const [searchName, setSearchName] = useState("");
-  const [current, setCurrent] = useState<AppVersion | null>(null);
-  const [notFound, setNotFound] = useState(false);
+  const [versions, setVersions] = useState<AppVersion[]>([]);
+  const [selected, setSelected] = useState<AppVersion | null>(null);
   const [msg, setMsg] = useState("");
   const [msgType, setMsgType] = useState<"ok" | "err">("ok");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const showMsg = (text: string, type: "ok" | "err" = "ok") => {
     setMsg(text);
@@ -28,34 +27,30 @@ export default function VersionDelete() {
     setTimeout(() => setMsg(""), 3000);
   };
 
-  const handleSearch = async () => {
-    if (!searchName.trim()) return;
-    setLoading(true);
+  const fetchVersions = async () => {
     try {
-      const res = await version.get(searchName.trim());
-      if (res.code === 200 && res.data) {
-        setCurrent(res.data);
-        setNotFound(false);
-      } else {
-        setCurrent(null);
-        setNotFound(true);
-      }
+      const res = await version.list();
+      if (res.code === 200 && res.data) setVersions(res.data);
     } catch {
-      showMsg("查询失败", "err");
+      /* ignore */
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchVersions();
+  }, []);
+
   const handleDelete = async () => {
-    if (!current) return;
-    if (!confirm(`确定删除 ${current.appName} 吗？`)) return;
+    if (!selected) return;
+    if (!confirm(`确定删除 ${selected.appName} 吗？`)) return;
     try {
-      const res = await version.delete(current.appName);
+      const res = await version.delete(selected.appName);
       if (res.code === 200) {
         showMsg("删除成功");
-        setCurrent(null);
-        setSearchName("");
+        setSelected(null);
+        fetchVersions();
       } else {
         showMsg(res.message, "err");
       }
@@ -88,7 +83,7 @@ export default function VersionDelete() {
           marginBottom: 40,
         }}
       >
-        搜索并删除应用版本
+        选择要删除的应用版本
       </p>
 
       {msg && (
@@ -108,80 +103,77 @@ export default function VersionDelete() {
         </div>
       )}
 
-      {/* Search */}
-      <div
-        style={{
-          backgroundColor: "var(--apple-surface-1)",
-          borderRadius: 12,
-          padding: 32,
-          marginBottom: 24,
-        }}
-      >
-        <div className="flex" style={{ gap: 10 }}>
-          <input
-            type="text"
-            value={searchName}
-            onChange={(e) => setSearchName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            placeholder="输入应用名称"
-            style={{ ...inputStyle, flex: 1 }}
-          />
-          <button
-            onClick={handleSearch}
-            disabled={loading}
-            className="cursor-pointer"
-            style={{
-              padding: "8px 20px",
-              backgroundColor: "var(--apple-blue)",
-              color: "#ffffff",
-              borderRadius: 980,
-              border: "none",
-              fontSize: 14,
-              opacity: loading ? 0.5 : 1,
-              whiteSpace: "nowrap",
-            }}
-          >
-            {loading ? "查询中..." : "查询"}
-          </button>
-        </div>
-      </div>
-
-      {notFound && !current && (
+      {loading ? (
+        <p style={{ color: "rgba(255,255,255,0.48)", fontSize: 14 }}>加载中...</p>
+      ) : versions.length === 0 ? (
+        <p style={{ color: "rgba(255,255,255,0.48)", fontSize: 14 }}>暂无版本数据</p>
+      ) : (
         <div
-          className="text-center"
           style={{
-            padding: "24px",
-            borderRadius: 12,
-            backgroundColor: "var(--apple-surface-1)",
-            color: "rgba(255,255,255,0.56)",
-            fontSize: 14,
-            marginBottom: 24,
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+            gap: 16,
+            marginBottom: 32,
           }}
         >
-          未找到该应用的版本信息
+          {versions.map((v) => (
+            <div
+              key={v.id}
+              onClick={() => setSelected(v)}
+              style={
+                selected?.id === v.id ? cardSelectedStyle : cardStyle
+              }
+            >
+              <div
+                style={{
+                  fontSize: 17,
+                  fontWeight: 600,
+                  color: "#ffffff",
+                  marginBottom: 6,
+                }}
+              >
+                {v.appName}
+              </div>
+              <div
+                style={{
+                  fontSize: 14,
+                  color: "rgba(255,255,255,0.64)",
+                  marginBottom: 4,
+                }}
+              >
+                版本：{v.version}
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "rgba(255,255,255,0.4)",
+                }}
+              >
+                {v.description || "无描述"} · {v.updatedAt}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
-      {current && (
+      {selected && (
         <div
           style={{
             backgroundColor: "var(--apple-surface-1)",
             borderRadius: 12,
             padding: 32,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 20,
-              marginBottom: 24,
-            }}
-          >
-            <InfoItem label="应用名称" value={current.appName} />
-            <InfoItem label="版本号" value={current.version} />
-            <InfoItem label="描述" value={current.description || "-"} />
-            <InfoItem label="更新时间" value={current.updatedAt} />
+          <div>
+            <div style={{ fontSize: 17, fontWeight: 600, color: "#fff" }}>
+              {selected.appName}
+            </div>
+            <div style={{ fontSize: 14, color: "rgba(255,255,255,0.56)", marginTop: 4 }}>
+              版本 {selected.version} · {selected.description || "无描述"}
+            </div>
           </div>
           <button
             onClick={handleDelete}
@@ -195,33 +187,13 @@ export default function VersionDelete() {
               fontSize: 14,
               lineHeight: 1.43,
               letterSpacing: "-0.224px",
+              whiteSpace: "nowrap",
             }}
           >
             确认删除
           </button>
         </div>
       )}
-    </div>
-  );
-}
-
-function InfoItem({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <span
-        style={{
-          display: "block",
-          fontSize: 12,
-          fontWeight: 600,
-          lineHeight: 1.33,
-          letterSpacing: "-0.12px",
-          color: "rgba(255,255,255,0.48)",
-          textTransform: "uppercase",
-        }}
-      >
-        {label}
-      </span>
-      <p style={{ marginTop: 4, fontSize: 17, color: "#ffffff" }}>{value}</p>
     </div>
   );
 }
