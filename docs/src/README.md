@@ -14,6 +14,10 @@ sidebar: true
 除公开接口外，调用时都需要携带 `Authorization: Bearer <token>`。
 :::
 
+:::danger 访问控制
+进入文档站前需要管理员身份登录，未登录会自动跳转到登录页。
+:::
+
 :::info 线上环境
 推荐基址：`https://server.pyisland.com/api`
 :::
