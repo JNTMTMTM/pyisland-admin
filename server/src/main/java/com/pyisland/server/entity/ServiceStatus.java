@@ -8,6 +8,7 @@ public class ServiceStatus {
     private String apiName;
     private Boolean status;
     private String message;
+    private String remark;
     private LocalDateTime updatedAt;
 
     public ServiceStatus() {
@@ -43,6 +44,14 @@ public class ServiceStatus {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
     public LocalDateTime getUpdatedAt() {

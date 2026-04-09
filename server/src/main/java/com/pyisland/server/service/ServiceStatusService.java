@@ -24,11 +24,12 @@ public class ServiceStatusService {
         return serviceStatusMapper.selectAll();
     }
 
-    public ServiceStatus updateStatus(String apiName, Boolean status, String message) {
+    public ServiceStatus updateStatus(String apiName, Boolean status, String message, String remark) {
         ServiceStatus existing = serviceStatusMapper.selectByApiName(apiName);
         if (existing != null) {
             existing.setStatus(status);
             existing.setMessage(message);
+            existing.setRemark(remark);
             existing.setUpdatedAt(LocalDateTime.now());
             serviceStatusMapper.update(existing);
             return existing;
@@ -37,6 +38,7 @@ public class ServiceStatusService {
             ss.setApiName(apiName);
             ss.setStatus(status);
             ss.setMessage(message);
+            ss.setRemark(remark);
             ss.setUpdatedAt(LocalDateTime.now());
             serviceStatusMapper.insert(ss);
             return ss;

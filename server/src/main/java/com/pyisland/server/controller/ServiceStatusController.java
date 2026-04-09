@@ -36,6 +36,7 @@ public class ServiceStatusController {
         data.put("apiName", status.getApiName());
         data.put("status", status.getStatus());
         data.put("message", status.getMessage());
+        data.put("remark", status.getRemark() != null ? status.getRemark() : "");
         data.put("updatedAt", status.getUpdatedAt() != null ? status.getUpdatedAt().toString() : "");
         return ResponseEntity.ok(Map.of(
                 "code", 200,
@@ -69,11 +70,12 @@ public class ServiceStatusController {
             ));
         }
         ServiceStatus updated = serviceStatusService.updateStatus(
-                request.apiName(), request.status(), request.message());
+                request.apiName(), request.status(), request.message(), request.remark());
         Map<String, Object> data = new HashMap<>();
         data.put("apiName", updated.getApiName());
         data.put("status", updated.getStatus());
         data.put("message", updated.getMessage());
+        data.put("remark", updated.getRemark() != null ? updated.getRemark() : "");
         data.put("updatedAt", updated.getUpdatedAt() != null ? updated.getUpdatedAt().toString() : "");
         return ResponseEntity.ok(Map.of(
                 "code", 200,
@@ -82,6 +84,6 @@ public class ServiceStatusController {
         ));
     }
 
-    public record UpdateStatusRequest(String apiName, Boolean status, String message) {
+    public record UpdateStatusRequest(String apiName, Boolean status, String message, String remark) {
     }
 }
