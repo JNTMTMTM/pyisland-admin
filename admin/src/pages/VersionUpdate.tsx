@@ -73,9 +73,17 @@ export default function VersionUpdate() {
     setFormDesc(v.description || "");
   };
 
+  const hasChanges = selected
+    ? formVersion !== selected.version || formDesc !== (selected.description || "")
+    : false;
+
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selected) return;
+    if (!hasChanges) {
+      showMsg("没有修改内容", "err");
+      return;
+    }
     try {
       const res = await version.update(selected.appName, formVersion, formDesc);
       if (res.code === 200) {
@@ -225,15 +233,17 @@ export default function VersionUpdate() {
             </div>
             <button
               type="submit"
+              disabled={!hasChanges}
               className="cursor-pointer"
               style={{
                 padding: "8px 20px",
-                backgroundColor: "var(--apple-blue)",
-                color: "#ffffff",
+                backgroundColor: hasChanges ? "var(--apple-blue)" : "rgba(255,255,255,0.12)",
+                color: hasChanges ? "#ffffff" : "rgba(255,255,255,0.32)",
                 borderRadius: 980,
                 border: "none",
                 fontSize: 17,
                 fontWeight: 400,
+                cursor: hasChanges ? "pointer" : "not-allowed",
               }}
             >
               更新

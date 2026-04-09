@@ -60,6 +60,24 @@ public class VersionController {
         }
         String appName = request.appName() == null || request.appName().isBlank()
                 ? "pyisland" : request.appName();
+
+        AppVersion existing = appVersionService.getVersion(appName);
+        if (existing == null) {
+            return ResponseEntity.ok(Map.of(
+                    "code", 404,
+                    "message", "版本信息不存在"
+            ));
+        }
+
+        String newDesc = request.description() == null ? "" : request.description();
+        String oldDesc = existing.getDescription() == null ? "" : existing.getDescription();
+        if (existing.getVersion().equals(request.version()) && oldDesc.equals(newDesc)) {
+            return ResponseEntity.ok(Map.of(
+                    "code", 400,
+                    "message", "没有修改内容，无需更新"
+            ));
+        }
+
         AppVersion updated = appVersionService.updateVersion(appName, request.version(), request.description());
         return ResponseEntity.ok(Map.of(
                 "code", 200,
