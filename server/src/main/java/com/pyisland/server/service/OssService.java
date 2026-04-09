@@ -2,6 +2,7 @@ package com.pyisland.server.service;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.model.CannedAccessControlList;
 import com.aliyun.oss.model.ObjectMetadata;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,7 @@ public class OssService {
             metadata.setContentType(file.getContentType());
             metadata.setContentLength(file.getSize());
             ossClient.putObject(bucketName, objectKey, file.getInputStream(), metadata);
+            ossClient.setObjectAcl(bucketName, objectKey, CannedAccessControlList.PublicRead);
         } finally {
             ossClient.shutdown();
         }
