@@ -29,7 +29,7 @@ export default function App() {
           <Route path="/version/update" element={<VersionUpdate />} />
           <Route path="/version/create" element={<VersionCreate />} />
           <Route path="/version/delete" element={<VersionDelete />} />
-          <Route path="/users" element={<UserList />} />
+          <Route path="/users/list" element={<UserList />} />
           <Route path="/users/add" element={<UserAdd />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -15,7 +15,7 @@ const navItems = [
   {
     label: "人员管理",
     children: [
-      { label: "管理员列表", path: "/users" },
+      { label: "管理员列表", path: "/users/list" },
       { label: "添加管理员", path: "/users/add" },
     ],
   },
