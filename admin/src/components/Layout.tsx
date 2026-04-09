@@ -76,7 +76,7 @@ export default function Layout() {
       <aside
         className="flex flex-col"
         style={{
-          width: 240,
+          width: 280,
           minHeight: "100vh",
           backgroundColor: "var(--apple-surface-1)",
           borderRight: "1px solid rgba(255,255,255,0.06)",
@@ -84,11 +84,18 @@ export default function Layout() {
       >
         {/* Logo */}
         <div
+          className="flex items-center"
           style={{
-            padding: "24px 20px 20px",
+            padding: "18px 20px 18px",
             borderBottom: "1px solid rgba(255,255,255,0.06)",
+            gap: 10,
           }}
         >
+          <img
+            src="/eisland.svg"
+            alt="PyIsland"
+            style={{ width: 28, height: 28 }}
+          />
           <span
             style={{
               fontFamily: "var(--font-display)",
@@ -99,7 +106,7 @@ export default function Layout() {
               color: "#ffffff",
             }}
           >
-            PyIsland
+            PyIsland 管理面板
           </span>
         </div>
 
