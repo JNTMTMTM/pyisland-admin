@@ -1,3 +1,10 @@
+/**
+ * @file App.tsx
+ * @description 管理后台前端路由入口。
+ * @description 定义登录路由、鉴权路由与各业务页面映射关系。
+ * @author 鸡哥
+ */
+
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { isLoggedIn } from "./api";
 import Login from "./pages/Login";
@@ -13,10 +20,19 @@ import ApiStatusPage from "./pages/ApiStatus";
 import ApiStatusManage from "./pages/ApiStatusManage";
 import ApiDebug from "./pages/ApiDebug";
 
+/**
+ * 鉴权路由包装器。
+ * @param children - 需要受保护的页面节点。
+ * @returns 已登录返回页面节点，否则重定向到登录页。
+ */
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   return isLoggedIn() ? children : <Navigate to="/login" replace />;
 }
 
+/**
+ * 应用根组件。
+ * @returns 路由容器与页面树。
+ */
 export default function App() {
   return (
     <BrowserRouter>

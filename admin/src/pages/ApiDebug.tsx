@@ -1,3 +1,10 @@
+/**
+ * @file ApiDebug.tsx
+ * @description 接口调试页面。
+ * @description 提供固定 GET 请求方式的调试能力。
+ * @author 鸡哥
+ */
+
 import { useState } from "react";
 
 const PRESET_APIS = [
@@ -27,6 +34,10 @@ const inputStyle: React.CSSProperties = {
   width: "100%",
 };
 
+/**
+ * 接口调试组件。
+ * @returns 渲染接口调试工具页面。
+ */
 export default function ApiDebug() {
   const [path, setPath] = useState("/v1/version/list");
   const [response, setResponse] = useState<string | null>(null);

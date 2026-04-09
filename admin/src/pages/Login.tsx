@@ -1,7 +1,18 @@
+/**
+ * @file Login.tsx
+ * @description 后台登录页面。
+ * @description 提供账号密码登录入口并处理登录态写入。
+ * @author 鸡哥
+ */
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, setToken, setUsername } from "../api";
 
+/**
+ * 登录页组件。
+ * @returns 渲染登录表单与状态提示。
+ */
 export default function Login() {
   const navigate = useNavigate();
   const [username, setUsernameInput] = useState("");

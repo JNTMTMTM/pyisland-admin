@@ -1,3 +1,10 @@
+/**
+ * @file ApiStatusManage.tsx
+ * @description 接口状态管理页面。
+ * @description 支持接口可用性切换及提示/备注信息编辑。
+ * @author 鸡哥
+ */
+
 import { useEffect, useState } from "react";
 import MessageDialog from "../components/MessageDialog";
 import { apiStatus, type ApiStatus } from "../api";
@@ -58,6 +65,10 @@ interface EditBuffer {
   remark: string;
 }
 
+/**
+ * 接口状态管理组件。
+ * @returns 渲染接口状态管理表格页面。
+ */
 export default function ApiStatusManage() {
   const [list, setList] = useState<ApiStatus[]>([]);
   const [loading, setLoading] = useState(true);

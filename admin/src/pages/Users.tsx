@@ -1,3 +1,10 @@
+/**
+ * @file Users.tsx
+ * @description 人员管理页面。
+ * @description 提供管理员新增、列表展示与删除能力。
+ * @author 鸡哥
+ */
+
 import { useState, useEffect } from "react";
 import { users, type AdminUserInfo } from "../api";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -42,6 +49,10 @@ const headingStyle: React.CSSProperties = {
   marginBottom: 24,
 };
 
+/**
+ * 人员管理组件。
+ * @returns 渲染管理员维护页面。
+ */
 export default function UsersPage() {
   const [list, setList] = useState<AdminUserInfo[]>([]);
   const [loading, setLoading] = useState(true);

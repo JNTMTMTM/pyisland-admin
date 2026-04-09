@@ -1,3 +1,10 @@
+/**
+ * @file UserList.tsx
+ * @description 管理员列表页面。
+ * @description 提供管理员查看与删除能力。
+ * @author 鸡哥
+ */
+
 import { useState, useEffect } from "react";
 import { users, getUsername, sanitizeUrl, type AdminUserInfo } from "../api";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -28,6 +35,10 @@ const tdStyle: React.CSSProperties = {
   borderBottom: "1px solid rgba(255,255,255,0.04)",
 };
 
+/**
+ * 管理员列表组件。
+ * @returns 渲染管理员列表与删除交互。
+ */
 export default function UserList() {
   const [list, setList] = useState<AdminUserInfo[]>([]);
   const [loading, setLoading] = useState(true);

@@ -1,3 +1,14 @@
+/**
+ * @file modal.ts
+ * @description 全局登录状态弹窗工具。
+ * @description 处理异地登录场景，展示强提示弹窗并在确认后执行回调。
+ * @author 鸡哥
+ */
+
+/**
+ * 展示异地登录提示弹窗。
+ * @param onConfirm - 用户确认后的回调函数。
+ */
 export function showKickedModal(onConfirm: () => void) {
   if (document.getElementById("kicked-modal-overlay")) return;
 

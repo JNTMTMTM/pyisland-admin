@@ -1,3 +1,10 @@
+/**
+ * @file ApiStatus.tsx
+ * @description 接口状态展示页面。
+ * @description 以只读方式展示接口可用状态与提示/备注信息。
+ * @author 鸡哥
+ */
+
 import { useEffect, useState } from "react";
 import MessageDialog from "../components/MessageDialog";
 import { apiStatus, type ApiStatus } from "../api";
@@ -40,6 +47,10 @@ const tdStyle: React.CSSProperties = {
   verticalAlign: "top",
 };
 
+/**
+ * 接口状态页面组件。
+ * @returns 渲染接口状态只读列表。
+ */
 export default function ApiStatusPage() {
   const [list, setList] = useState<ApiStatus[]>([]);
   const [loading, setLoading] = useState(true);

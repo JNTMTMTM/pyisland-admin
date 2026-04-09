@@ -1,3 +1,10 @@
+/**
+ * @file Layout.tsx
+ * @description 后台通用布局组件。
+ * @description 提供侧边导航、用户信息区与主内容路由出口。
+ * @author 鸡哥
+ */
+
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { clearToken, getUsername, users, sanitizeUrl } from "../api";
 import { useState, useEffect } from "react";
@@ -58,6 +65,10 @@ const subLinkActive: React.CSSProperties = {
   color: "var(--apple-link-dark)",
 };
 
+/**
+ * 后台布局组件。
+ * @returns 渲染侧边导航与主内容容器。
+ */
 export default function Layout() {
   const navigate = useNavigate();
   const [expandedSections, setExpandedSections] = useState<Set<string>>(

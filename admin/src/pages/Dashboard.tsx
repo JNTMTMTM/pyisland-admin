@@ -1,3 +1,10 @@
+/**
+ * @file Dashboard.tsx
+ * @description 版本看板页面。
+ * @description 提供版本查询、创建、更新和删除的统一入口。
+ * @author 鸡哥
+ */
+
 import { useState, useCallback } from "react";
 import { version, type AppVersion } from "../api";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -42,6 +49,10 @@ const sectionHeadingStyle: React.CSSProperties = {
   marginBottom: 24,
 };
 
+/**
+ * 版本看板组件。
+ * @returns 渲染版本管理看板页面。
+ */
 export default function Dashboard() {
   const [searchName, setSearchName] = useState("");
   const [current, setCurrent] = useState<AppVersion | null>(null);

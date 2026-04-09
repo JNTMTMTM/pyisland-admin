@@ -1,3 +1,10 @@
+/**
+ * @file ConfirmDialog.tsx
+ * @description 通用确认弹窗组件。
+ * @description 用于二次确认敏感操作并返回用户决策。
+ * @author 鸡哥
+ */
+
 interface ConfirmDialogProps {
   visible: boolean;
   title: string;
@@ -9,6 +16,11 @@ interface ConfirmDialogProps {
   onCancel: () => void;
 }
 
+/**
+ * 确认弹窗组件。
+ * @param props - 组件入参。
+ * @returns 可见时渲染弹窗，不可见时返回 null。
+ */
 export default function ConfirmDialog({
   visible,
   title,

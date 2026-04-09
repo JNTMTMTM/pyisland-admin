@@ -1,3 +1,10 @@
+/**
+ * @file MessageDialog.tsx
+ * @description 通用消息弹窗组件。
+ * @description 支持成功/失败状态展示与自动关闭。
+ * @author 鸡哥
+ */
+
 import { useEffect } from "react";
 
 interface MessageDialogProps {
@@ -8,6 +15,11 @@ interface MessageDialogProps {
   duration?: number;
 }
 
+/**
+ * 消息弹窗组件。
+ * @param props - 组件入参。
+ * @returns 可见时渲染弹窗，不可见时返回 null。
+ */
 export default function MessageDialog({
   visible,
   type,

@@ -1,3 +1,10 @@
+/**
+ * @file VersionUpdate.tsx
+ * @description 版本更新页面。
+ * @description 支持版本、描述与下载链接维护。
+ * @author 鸡哥
+ */
+
 import { useState, useEffect } from "react";
 import { version, type AppVersion } from "../api";
 import MessageDialog from "../components/MessageDialog";
@@ -38,6 +45,10 @@ const cardSelectedStyle: React.CSSProperties = {
   outline: "2px solid var(--apple-blue)",
 };
 
+/**
+ * 更新版本组件。
+ * @returns 渲染版本更新页面。
+ */
 export default function VersionUpdate() {
   const [versions, setVersions] = useState<AppVersion[]>([]);
   const [selected, setSelected] = useState<AppVersion | null>(null);

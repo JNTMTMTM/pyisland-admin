@@ -1,3 +1,10 @@
+/**
+ * @file UserAdd.tsx
+ * @description 添加管理员页面。
+ * @description 支持新管理员创建并可选上传头像。
+ * @author 鸡哥
+ */
+
 import { useState, useRef } from "react";
 import { users, uploadAvatar, sanitizeUrl } from "../api";
 import MessageDialog from "../components/MessageDialog";
@@ -25,6 +32,10 @@ const labelStyle: React.CSSProperties = {
   color: "rgba(255,255,255,0.64)",
 };
 
+/**
+ * 添加管理员组件。
+ * @returns 渲染管理员新增表单。
+ */
 export default function UserAdd() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

@@ -1,3 +1,10 @@
+/**
+ * @file Profile.tsx
+ * @description 个人资料页面。
+ * @description 提供头像上传与密码更新能力。
+ * @author 鸡哥
+ */
+
 import { useState, useEffect, useRef } from "react";
 import { users, getUsername, uploadAvatar, sanitizeUrl } from "../api";
 import MessageDialog from "../components/MessageDialog";
@@ -25,6 +32,10 @@ const labelStyle: React.CSSProperties = {
   color: "rgba(255,255,255,0.64)",
 };
 
+/**
+ * 个人资料组件。
+ * @returns 渲染头像与密码维护页面。
+ */
 export default function Profile() {
   const username = getUsername();
   const [avatar, setAvatar] = useState<string | null>(null);

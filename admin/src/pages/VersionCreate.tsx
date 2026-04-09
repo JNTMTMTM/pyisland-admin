@@ -1,3 +1,10 @@
+/**
+ * @file VersionCreate.tsx
+ * @description 版本创建页面。
+ * @description 提供应用版本与下载链接创建能力。
+ * @author 鸡哥
+ */
+
 import { useState } from "react";
 import { version } from "../api";
 import MessageDialog from "../components/MessageDialog";
@@ -25,6 +32,10 @@ const labelStyle: React.CSSProperties = {
   color: "rgba(255,255,255,0.64)",
 };
 
+/**
+ * 创建版本组件。
+ * @returns 渲染版本创建表单页面。
+ */
 export default function VersionCreate() {
   const [appName, setAppName] = useState("");
   const [ver, setVer] = useState("");

@@ -1,3 +1,10 @@
+/**
+ * @file VersionDelete.tsx
+ * @description 版本删除页面。
+ * @description 提供版本列表选择与删除确认能力。
+ * @author 鸡哥
+ */
+
 import { useState, useEffect } from "react";
 import { version, type AppVersion } from "../api";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -16,6 +23,10 @@ const cardSelectedStyle: React.CSSProperties = {
   outline: "2px solid #ff453a",
 };
 
+/**
+ * 删除版本组件。
+ * @returns 渲染版本删除列表与确认交互。
+ */
 export default function VersionDelete() {
   const [versions, setVersions] = useState<AppVersion[]>([]);
   const [selected, setSelected] = useState<AppVersion | null>(null);

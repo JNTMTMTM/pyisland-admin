@@ -1,7 +1,19 @@
+/**
+ * @file api.ts
+ * @description 前端统一 API 请求封装与业务接口定义。
+ * @description 提供鉴权、版本管理、用户管理、接口状态管理及头像上传能力。
+ * @author 鸡哥
+ */
+
 import { showKickedModal } from "./modal";
 
 const BASE = import.meta.env.VITE_API_BASE || "/api";
 
+/**
+ * 过滤并校验可用于展示的头像 URL。
+ * @param url - 原始 URL 字符串。
+ * @returns 合法 URL 或 null。
+ */
 export function sanitizeUrl(url: string | null | undefined): string | null {
   if (!url) return null;
   try {
@@ -16,23 +28,42 @@ function getToken(): string | null {
   return localStorage.getItem("token");
 }
 
+/**
+ * 持久化登录 token。
+ * @param token - 登录成功返回的 JWT token。
+ */
 export function setToken(token: string) {
   localStorage.setItem("token", token);
 }
 
+/**
+ * 清理当前登录态。
+ */
 export function clearToken() {
   localStorage.removeItem("token");
   localStorage.removeItem("username");
 }
 
+/**
+ * 判断当前是否已登录。
+ * @returns 是否存在可用 token。
+ */
 export function isLoggedIn(): boolean {
   return !!getToken();
 }
 
+/**
+ * 获取当前登录用户名。
+ * @returns 用户名；未登录时返回空字符串。
+ */
 export function getUsername(): string {
   return localStorage.getItem("username") || "";
 }
 
+/**
+ * 持久化当前登录用户名。
+ * @param username - 当前用户名称。
+ */
 export function setUsername(username: string) {
   localStorage.setItem("username", username);
 }
@@ -146,6 +177,11 @@ export const version = {
   },
 };
 
+/**
+ * 上传用户头像文件。
+ * @param file - 待上传的头像文件。
+ * @returns 上传接口响应，成功时 data 为头像 URL。
+ */
 export async function uploadAvatar(file: File): Promise<ApiResponse<string>> {
   const token = getToken();
   const formData = new FormData();

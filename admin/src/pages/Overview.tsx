@@ -1,3 +1,10 @@
+/**
+ * @file Overview.tsx
+ * @description 总览页面。
+ * @description 展示管理员数量、接口状态和版本信息统计。
+ * @author 鸡哥
+ */
+
 import { useState, useEffect } from "react";
 import { version, users, apiStatus, type AppVersion } from "../api";
 
@@ -11,6 +18,10 @@ const headingStyle: React.CSSProperties = {
   marginBottom: 24,
 };
 
+/**
+ * 总览页组件。
+ * @returns 渲染系统运行概况和版本一览。
+ */
 export default function Overview() {
   const [versions, setVersions] = useState<AppVersion[]>([]);
   const [adminCount, setAdminCount] = useState(0);
