@@ -19,6 +19,20 @@ public class AppVersionService {
         return appVersionMapper.selectByAppName(appName);
     }
 
+    public boolean deleteVersion(String appName) {
+        return appVersionMapper.deleteByAppName(appName) > 0;
+    }
+
+    public AppVersion createVersion(String appName, String version, String description) {
+        AppVersion existing = appVersionMapper.selectByAppName(appName);
+        if (existing != null) {
+            return null;
+        }
+        AppVersion appVersion = new AppVersion(appName, version, description);
+        appVersionMapper.insert(appVersion);
+        return appVersion;
+    }
+
     public AppVersion updateVersion(String appName, String version, String description) {
         AppVersion existing = appVersionMapper.selectByAppName(appName);
         if (existing != null) {

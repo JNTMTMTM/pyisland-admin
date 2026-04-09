@@ -30,4 +30,9 @@
         WHERE app_name = #{appName}
     </update>
 
+    <delete id="deleteByAppName">
+        DELETE FROM app_version
+        WHERE app_name = #{appName}
+    </delete>
+
 </mapper>

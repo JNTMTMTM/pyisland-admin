@@ -12,4 +12,6 @@ public interface AppVersionMapper {
     int insert(AppVersion appVersion);
 
     int updateByAppName(AppVersion appVersion);
+
+    int deleteByAppName(@Param("appName") String appName);
 }
