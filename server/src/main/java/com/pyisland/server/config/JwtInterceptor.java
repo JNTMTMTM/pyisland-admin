@@ -29,6 +29,9 @@ public class JwtInterceptor implements HandlerInterceptor {
         if ("GET".equalsIgnoreCase(method) && uri.startsWith("/api/v1/version")) {
             return true;
         }
+        if ("GET".equalsIgnoreCase(method) && uri.startsWith("/api/v1/service-status")) {
+            return true;
+        }
 
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
