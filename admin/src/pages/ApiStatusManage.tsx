@@ -302,7 +302,7 @@ export default function ApiStatusManage() {
                               whiteSpace: "nowrap",
                             }}
                           >
-                            {row.status ? "设为禁用" : "设为启用"}
+                            {row.status ? "标记为不可用" : "标记为可用"}
                           </button>
 
                           {/* 编辑 / 保存 + 取消 */}
