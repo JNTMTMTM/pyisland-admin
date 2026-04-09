@@ -77,6 +77,7 @@ export interface AppVersion {
   appName: string;
   version: string;
   description: string;
+  downloadUrl: string;
   updatedAt: string;
 }
 
@@ -125,16 +126,16 @@ export const version = {
       `/v1/version?appName=${encodeURIComponent(appName)}`
     );
   },
-  create(appName: string, ver: string, description: string) {
+  create(appName: string, ver: string, description: string, downloadUrl: string) {
     return request<ApiResponse<AppVersion>>("/v1/version", {
       method: "POST",
-      body: JSON.stringify({ appName, version: ver, description }),
+      body: JSON.stringify({ appName, version: ver, description, downloadUrl }),
     });
   },
-  update(appName: string, ver: string, description: string) {
+  update(appName: string, ver: string, description: string, downloadUrl: string) {
     return request<ApiResponse<AppVersion>>("/v1/version", {
       method: "PUT",
-      body: JSON.stringify({ appName, version: ver, description }),
+      body: JSON.stringify({ appName, version: ver, description, downloadUrl }),
     });
   },
   delete(appName: string) {

@@ -43,6 +43,7 @@ export default function VersionUpdate() {
   const [selected, setSelected] = useState<AppVersion | null>(null);
   const [formVersion, setFormVersion] = useState("");
   const [formDesc, setFormDesc] = useState("");
+  const [formDownloadUrl, setFormDownloadUrl] = useState("");
   const [msg, setMsg] = useState("");
   const [msgType, setMsgType] = useState<"ok" | "err">("ok");
   const [loading, setLoading] = useState(true);
@@ -71,10 +72,13 @@ export default function VersionUpdate() {
     setSelected(v);
     setFormVersion(v.version);
     setFormDesc(v.description || "");
+    setFormDownloadUrl(v.downloadUrl || "");
   };
 
   const hasChanges = selected
-    ? formVersion !== selected.version || formDesc !== (selected.description || "")
+    ? formVersion !== selected.version ||
+      formDesc !== (selected.description || "") ||
+      formDownloadUrl !== (selected.downloadUrl || "")
     : false;
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -85,7 +89,7 @@ export default function VersionUpdate() {
       return;
     }
     try {
-      const res = await version.update(selected.appName, formVersion, formDesc);
+      const res = await version.update(selected.appName, formVersion, formDesc, formDownloadUrl);
       if (res.code === 200) {
         showMsg("版本更新成功");
         setSelected(res.data!);
@@ -221,13 +225,23 @@ export default function VersionUpdate() {
                 style={inputStyle}
               />
             </div>
-            <div style={{ marginBottom: 24 }}>
+            <div style={{ marginBottom: 16 }}>
               <label style={labelStyle}>描述</label>
               <input
                 type="text"
                 value={formDesc}
                 onChange={(e) => setFormDesc(e.target.value)}
                 placeholder="版本描述（可选）"
+                style={inputStyle}
+              />
+            </div>
+            <div style={{ marginBottom: 24 }}>
+              <label style={labelStyle}>下载链接</label>
+              <input
+                type="url"
+                value={formDownloadUrl}
+                onChange={(e) => setFormDownloadUrl(e.target.value)}
+                placeholder="https://example.com/download/app.apk"
                 style={inputStyle}
               />
             </div>

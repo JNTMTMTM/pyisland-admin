@@ -29,6 +29,7 @@ export default function VersionCreate() {
   const [appName, setAppName] = useState("");
   const [ver, setVer] = useState("");
   const [desc, setDesc] = useState("");
+  const [downloadUrl, setDownloadUrl] = useState("");
   const [msg, setMsg] = useState("");
   const [msgType, setMsgType] = useState<"ok" | "err">("ok");
 
@@ -40,12 +41,13 @@ export default function VersionCreate() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await version.create(appName, ver, desc);
+      const res = await version.create(appName, ver, desc, downloadUrl);
       if (res.code === 200) {
         showMsg("应用创建成功");
         setAppName("");
         setVer("");
         setDesc("");
+        setDownloadUrl("");
       } else {
         showMsg(res.message, "err");
       }
@@ -118,13 +120,23 @@ export default function VersionCreate() {
               style={inputStyle}
             />
           </div>
-          <div style={{ marginBottom: 24 }}>
+          <div style={{ marginBottom: 16 }}>
             <label style={labelStyle}>描述</label>
             <input
               type="text"
               value={desc}
               onChange={(e) => setDesc(e.target.value)}
-              placeholder="版本描述（可选）"
+              placeholder="版本描述"
+              style={inputStyle}
+            />
+          </div>
+          <div style={{ marginBottom: 24 }}>
+            <label style={labelStyle}>下载链接</label>
+            <input
+              type="url"
+              value={downloadUrl}
+              onChange={(e) => setDownloadUrl(e.target.value)}
+              placeholder="https://download.pyisland.com/download/"
               style={inputStyle}
             />
           </div>
