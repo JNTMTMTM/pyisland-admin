@@ -42,7 +42,7 @@ INSERT IGNORE INTO service_status (api_name, status, message, remark) VALUES
     ('admin-users.profile.update',  1, '', 'PUT /v1/admin-users/profile - 更新管理员资料'),
 
     -- --------------------------------------------------------
-    --  用户管理  /v1/app-users
+    --  用户管理（管理员侧）  /v1/app-users
     -- --------------------------------------------------------
     ('app-users.list',              1, '', 'GET /v1/app-users - 用户列表'),
     ('app-users.count',             1, '', 'GET /v1/app-users/count - 用户数量'),
@@ -50,6 +50,14 @@ INSERT IGNORE INTO service_status (api_name, status, message, remark) VALUES
     ('app-users.delete',            1, '', 'DELETE /v1/app-users?username= - 删除用户'),
     ('app-users.profile.get',       1, '', 'GET /v1/app-users/profile - 获取用户资料'),
     ('app-users.profile.update',    1, '', 'PUT /v1/app-users/profile - 更新用户资料'),
+
+    -- --------------------------------------------------------
+    --  用户自助（用户侧）  /v1/user
+    -- --------------------------------------------------------
+    ('user.profile.get',            1, '', 'GET /v1/user/profile - 获取自己的资料'),
+    ('user.profile.update',         1, '', 'PUT /v1/user/profile - 修改自己的资料（头像/性别/生日/密码）'),
+    ('user.logout',                 1, '', 'POST /v1/user/logout - 退出登录'),
+    ('user.unregister',             1, '', 'DELETE /v1/user/account - 注销账号（需密码二次确认）'),
 
     -- --------------------------------------------------------
     --  文件上传  /v1/upload
