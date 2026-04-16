@@ -4,6 +4,7 @@ import com.pyisland.server.entity.AppUser;
 import com.pyisland.server.security.PasswordPolicy;
 import com.pyisland.server.security.UsernamePolicy;
 import com.pyisland.server.service.AppUserService;
+import com.pyisland.server.service.R2StorageService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,13 +34,17 @@ public class AppUserController {
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
 
     private final AppUserService appUserService;
+    private final R2StorageService r2StorageService;
 
     /**
      * 构造普通用户控制器。
      * @param appUserService 普通用户服务。
+     * @param r2StorageService R2 存储服务，用于改写历史 URL。
      */
-    public AppUserController(AppUserService appUserService) {
+    public AppUserController(AppUserService appUserService,
+                             R2StorageService r2StorageService) {
         this.appUserService = appUserService;
+        this.r2StorageService = r2StorageService;
     }
 
     /**
@@ -54,7 +59,7 @@ public class AppUserController {
             m.put("id", u.getId());
             m.put("username", u.getUsername());
             m.put("email", u.getEmail());
-            m.put("avatar", u.getAvatar());
+            m.put("avatar", r2StorageService.rewriteLegacyUrl(u.getAvatar()));
             m.put("createdAt", u.getCreatedAt() != null ? u.getCreatedAt().toString() : "");
             return m;
         }).toList();
@@ -163,7 +168,7 @@ public class AppUserController {
         Map<String, Object> data = new HashMap<>();
         data.put("username", user.getUsername());
         data.put("email", user.getEmail());
-        data.put("avatar", user.getAvatar());
+        data.put("avatar", r2StorageService.rewriteLegacyUrl(user.getAvatar()));
         data.put("createdAt", user.getCreatedAt() != null ? user.getCreatedAt().toString() : "");
         return ResponseEntity.ok(Map.of(
                 "code", 200,

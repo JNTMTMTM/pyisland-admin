@@ -81,4 +81,33 @@ public class R2StorageService {
         String base = endpoint.endsWith("/") ? endpoint.substring(0, endpoint.length() - 1) : endpoint;
         return base + "/" + bucketName + "/" + safeKey;
     }
+
+    /**
+     * 将历史上保存的私有 R2 endpoint 地址改写为公开域名地址。
+     * 无需改写时原样返回。
+     * @param url 数据库中保存的头像 URL。
+     * @return 改写后的 URL。
+     */
+    public String rewriteLegacyUrl(String url) {
+        if (url == null || url.isBlank()) {
+            return url;
+        }
+        if (publicDomain == null || publicDomain.isBlank()) {
+            return url;
+        }
+        if (endpoint == null || endpoint.isBlank()) {
+            return url;
+        }
+        String base = endpoint.endsWith("/") ? endpoint.substring(0, endpoint.length() - 1) : endpoint;
+        String prefix = base + "/" + bucketName + "/";
+        if (!url.startsWith(prefix)) {
+            return url;
+        }
+        String key = url.substring(prefix.length());
+        String domain = publicDomain.startsWith("http") ? publicDomain : "https://" + publicDomain;
+        if (domain.endsWith("/")) {
+            return domain + key;
+        }
+        return domain + "/" + key;
+    }
 }
