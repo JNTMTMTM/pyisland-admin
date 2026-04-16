@@ -1,7 +1,10 @@
 package com.pyisland.server.controller;
 
 import com.pyisland.server.entity.AppUser;
+import com.pyisland.server.security.PasswordPolicy;
+import com.pyisland.server.security.UsernamePolicy;
 import com.pyisland.server.service.AppUserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
+
+
 
 /**
  * 普通用户控制器。
@@ -22,6 +29,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/v1/app-users")
 public class AppUserController {
+
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
 
     private final AppUserService appUserService;
 
@@ -77,17 +86,36 @@ public class AppUserController {
      */
     @PostMapping
     public ResponseEntity<?> addUser(@RequestBody AddUserRequest request) {
-        if (request.username() == null || request.username().isBlank()
-                || request.email() == null || request.email().isBlank()
-                || request.password() == null || request.password().isBlank()) {
+        String usernameError = UsernamePolicy.validate(request.username());
+        if (usernameError != null) {
             return ResponseEntity.badRequest().body(Map.of(
                     "code", 400,
-                    "message", "用户名、邮箱和密码不能为空"
+                    "message", usernameError
             ));
         }
-        AppUser user = appUserService.register(request.username(), request.email(), request.password());
+        if (request.email() == null || request.email().isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "code", 400,
+                    "message", "邮箱不能为空"
+            ));
+        }
+        String normalizedEmail = request.email().trim().toLowerCase(Locale.ROOT);
+        if (!EMAIL_PATTERN.matcher(normalizedEmail).matches() || normalizedEmail.length() > 150) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "code", 400,
+                    "message", "邮箱格式不正确"
+            ));
+        }
+        String passwordError = PasswordPolicy.validate(request.password());
+        if (passwordError != null) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "code", 400,
+                    "message", passwordError
+            ));
+        }
+        AppUser user = appUserService.register(request.username(), normalizedEmail, request.password());
         if (user == null) {
-            return ResponseEntity.ok(Map.of(
+            return ResponseEntity.status(409).body(Map.of(
                     "code", 409,
                     "message", "用户名或邮箱已存在"
             ));
@@ -107,7 +135,7 @@ public class AppUserController {
     public ResponseEntity<?> deleteUser(@RequestParam String username) {
         boolean deleted = appUserService.deleteUser(username);
         if (!deleted) {
-            return ResponseEntity.ok(Map.of(
+            return ResponseEntity.status(404).body(Map.of(
                     "code", 404,
                     "message", "用户不存在"
             ));
@@ -145,26 +173,41 @@ public class AppUserController {
     }
 
     /**
-     * 更新普通用户资料。
+     * 更新普通用户资料。仅允许修改当前登录用户自身资料。
      * @param request 更新请求。
+     * @param http HTTP 请求上下文。
      * @return 更新结果。
      */
     @PutMapping("/profile")
-    public ResponseEntity<?> updateProfile(@RequestBody UpdateProfileRequest request) {
+    public ResponseEntity<?> updateProfile(@RequestBody UpdateProfileRequest request, HttpServletRequest http) {
         if (request.username() == null || request.username().isBlank()) {
             return ResponseEntity.badRequest().body(Map.of(
                     "code", 400,
                     "message", "用户名不能为空"
             ));
         }
+        String caller = (String) http.getAttribute("username");
+        if (caller == null || !caller.equals(request.username())) {
+            return ResponseEntity.status(403).body(Map.of(
+                    "code", 403,
+                    "message", "只能修改当前登录用户的资料"
+            ));
+        }
         AppUser user = appUserService.getByUsername(request.username());
         if (user == null) {
-            return ResponseEntity.ok(Map.of(
+            return ResponseEntity.status(404).body(Map.of(
                     "code", 404,
                     "message", "用户不存在"
             ));
         }
         if (request.password() != null && !request.password().isBlank()) {
+            String passwordError = PasswordPolicy.validate(request.password());
+            if (passwordError != null) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "code", 400,
+                        "message", passwordError
+                ));
+            }
             appUserService.updateProfile(request.username(), request.password(), request.avatar());
         } else {
             appUserService.updateAvatar(request.username(), request.avatar());
