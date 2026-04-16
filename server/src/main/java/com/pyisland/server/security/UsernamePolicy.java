@@ -4,10 +4,24 @@ import java.util.regex.Pattern;
 
 /**
  * 统一的用户名合法性校验。
+ * 允许中英文、数字、下划线、点、短横线。
  */
 public final class UsernamePolicy {
 
-    private static final Pattern PATTERN = Pattern.compile("^[A-Za-z0-9_.-]{3,32}$");
+    /**
+     * 最小长度（按字符计）。
+     */
+    public static final int MIN_LENGTH = 2;
+
+    /**
+     * 最大长度（按字符计）。
+     */
+    public static final int MAX_LENGTH = 32;
+
+    /**
+     * 允许的字符集：Unicode 字母、数字、下划线、点、短横线。
+     */
+    private static final Pattern CHARSET_PATTERN = Pattern.compile("^[\\p{L}\\p{N}_.\\-]+$");
 
     private UsernamePolicy() {
     }
@@ -21,8 +35,12 @@ public final class UsernamePolicy {
         if (username == null || username.isBlank()) {
             return "用户名不能为空";
         }
-        if (!PATTERN.matcher(username).matches()) {
-            return "用户名仅允许 3-32 位字母、数字、下划线、点或短横线";
+        int length = username.codePointCount(0, username.length());
+        if (length < MIN_LENGTH || length > MAX_LENGTH) {
+            return "用户名长度需为 " + MIN_LENGTH + "-" + MAX_LENGTH + " 位";
+        }
+        if (!CHARSET_PATTERN.matcher(username).matches()) {
+            return "用户名仅允许中英文、数字、下划线、点或短横线";
         }
         return null;
     }
