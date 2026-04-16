@@ -67,6 +67,9 @@ export default function AppUserAdd() {
           const upRes = await uploadUserAvatar(avatarFile);
           if (upRes.code === 200 && upRes.data) {
             await appUsers.updateProfile(username, null, upRes.data);
+          } else {
+            showMsg(upRes.message || "头像上传失败", "err");
+            return;
           }
         }
         showMsg("添加用户成功");
