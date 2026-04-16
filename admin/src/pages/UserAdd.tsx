@@ -6,7 +6,7 @@
  */
 
 import { useState, useRef } from "react";
-import { users, uploadAvatar, sanitizeUrl } from "../api";
+import { adminUsers, uploadAdminAvatar, sanitizeUrl } from "../api";
 import MessageDialog from "../components/MessageDialog";
 
 const inputStyle: React.CSSProperties = {
@@ -71,12 +71,12 @@ export default function UserAdd() {
       return;
     }
     try {
-      const res = await users.add(username, password);
+      const res = await adminUsers.add(username, password);
       if (res.code === 200) {
         if (avatarFile) {
-          const upRes = await uploadAvatar(avatarFile);
+          const upRes = await uploadAdminAvatar(avatarFile);
           if (upRes.code === 200 && upRes.data) {
-            await users.updateProfile(username, null, upRes.data);
+            await adminUsers.updateProfile(username, null, upRes.data);
           }
         }
         showMsg("添加管理员成功");

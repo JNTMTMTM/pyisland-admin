@@ -1,12 +1,5 @@
-/**
- * @file UserList.tsx
- * @description 管理员列表页面。
- * @description 提供管理员查看与删除能力。
- * @author 鸡哥
- */
-
 import { useState, useEffect } from "react";
-import { adminUsers, getUsername, sanitizeUrl, type AdminUserInfo } from "../api";
+import { appUsers, type AppUserInfo, sanitizeUrl } from "../api";
 import ConfirmDialog from "../components/ConfirmDialog";
 import MessageDialog from "../components/MessageDialog";
 
@@ -35,18 +28,13 @@ const tdStyle: React.CSSProperties = {
   borderBottom: "1px solid rgba(255,255,255,0.04)",
 };
 
-/**
- * 管理员列表组件。
- * @returns 渲染管理员列表与删除交互。
- */
-export default function UserList() {
-  const [list, setList] = useState<AdminUserInfo[]>([]);
+export default function AppUserList() {
+  const [list, setList] = useState<AppUserInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [msg, setMsg] = useState("");
   const [msgType, setMsgType] = useState<"ok" | "err">("ok");
-  const currentUser = getUsername();
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState("");
 
@@ -64,7 +52,7 @@ export default function UserList() {
 
   const fetchUsers = async () => {
     try {
-      const res = await adminUsers.list();
+      const res = await appUsers.list();
       if (res.code === 200 && res.data) setList(res.data);
     } catch {
       /* ignore */
@@ -84,10 +72,6 @@ export default function UserList() {
   }, [page, totalPages]);
 
   const requestDelete = (username: string) => {
-    if (username === currentUser) {
-      showMsg("不能删除自己的账号", "err");
-      return;
-    }
     setDeleteTarget(username);
     setConfirmVisible(true);
   };
@@ -96,7 +80,7 @@ export default function UserList() {
     setConfirmVisible(false);
     if (!deleteTarget) return;
     try {
-      const res = await adminUsers.delete(deleteTarget);
+      const res = await appUsers.delete(deleteTarget);
       if (res.code === 200) {
         showMsg("删除成功");
         fetchUsers();
@@ -120,7 +104,7 @@ export default function UserList() {
           margin: "0 0 8px",
         }}
       >
-        管理员列表
+        用户列表
       </h1>
       <p
         style={{
@@ -132,7 +116,7 @@ export default function UserList() {
           marginBottom: 40,
         }}
       >
-        查看和管理系统管理员
+        查看和管理普通用户
       </p>
 
       <MessageDialog
@@ -144,7 +128,7 @@ export default function UserList() {
 
       <div style={cardStyle}>
         <h2 style={headingStyle}>
-          全部管理员
+          全部用户
           <span
             style={{
               fontSize: 14,
@@ -160,14 +144,14 @@ export default function UserList() {
         {loading ? (
           <p style={{ color: "rgba(255,255,255,0.48)", fontSize: 14 }}>加载中...</p>
         ) : total === 0 ? (
-          <p style={{ color: "rgba(255,255,255,0.48)", fontSize: 14 }}>暂无管理员</p>
+          <p style={{ color: "rgba(255,255,255,0.48)", fontSize: 14 }}>暂无用户</p>
         ) : (
           <div>
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
-                    {["头像", "用户名", "创建时间", "操作"].map((h) => (
+                    {["头像", "用户名", "邮箱", "创建时间", "操作"].map((h) => (
                       <th
                         key={h}
                         style={{
@@ -211,43 +195,25 @@ export default function UserList() {
                           {!u.avatar && u.username.charAt(0).toUpperCase()}
                         </div>
                       </td>
-                      <td style={tdStyle}>
-                        {u.username}
-                        {u.username === currentUser && (
-                          <span
-                            style={{
-                              marginLeft: 8,
-                              fontSize: 11,
-                              color: "var(--apple-link-dark)",
-                            }}
-                          >
-                            (当前)
-                          </span>
-                        )}
-                      </td>
+                      <td style={tdStyle}>{u.username}</td>
+                      <td style={tdStyle}>{u.email}</td>
                       <td style={tdStyle}>{u.createdAt}</td>
                       <td style={tdStyle}>
-                        {u.username === currentUser ? (
-                          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.24)" }}>
-                            —
-                          </span>
-                        ) : (
-                          <button
-                            onClick={() => requestDelete(u.username)}
-                            className="cursor-pointer"
-                            style={{
-                              padding: "2px 12px",
-                              backgroundColor: "transparent",
-                              color: "#ff453a",
-                              borderRadius: 980,
-                              border: "1px solid #ff453a",
-                              fontSize: 12,
-                              lineHeight: 1.43,
-                            }}
-                          >
-                            删除
-                          </button>
-                        )}
+                        <button
+                          onClick={() => requestDelete(u.username)}
+                          className="cursor-pointer"
+                          style={{
+                            padding: "2px 12px",
+                            backgroundColor: "transparent",
+                            color: "#ff453a",
+                            borderRadius: 980,
+                            border: "1px solid #ff453a",
+                            fontSize: 12,
+                            lineHeight: 1.43,
+                          }}
+                        >
+                          删除
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -324,10 +290,11 @@ export default function UserList() {
           </div>
         )}
       </div>
+
       <ConfirmDialog
         visible={confirmVisible}
         title="删除确认"
-        message={`确定要删除管理员 ${deleteTarget} 吗？此操作不可撤销。`}
+        message={`确定要删除用户 ${deleteTarget} 吗？此操作不可撤销。`}
         confirmText="删除"
         danger
         onConfirm={handleDelete}

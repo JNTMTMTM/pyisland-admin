@@ -1,12 +1,5 @@
-/**
- * @file Profile.tsx
- * @description 个人资料页面。
- * @description 提供头像上传与密码更新能力。
- * @author 鸡哥
- */
-
-import { useState, useEffect, useRef } from "react";
-import { adminUsers, getUsername, uploadAdminAvatar, sanitizeUrl } from "../api";
+import { useState, useRef } from "react";
+import { appUsers, uploadUserAvatar, sanitizeUrl } from "../api";
 import MessageDialog from "../components/MessageDialog";
 
 const inputStyle: React.CSSProperties = {
@@ -32,44 +25,21 @@ const labelStyle: React.CSSProperties = {
   color: "rgba(255,255,255,0.64)",
 };
 
-/**
- * 个人资料组件。
- * @returns 渲染头像与密码维护页面。
- */
-export default function Profile() {
-  const username = getUsername();
-  const [avatar, setAvatar] = useState<string | null>(null);
+export default function AppUserAdd() {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPwd, setConfirmPwd] = useState("");
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPwd, setConfirmPwd] = useState("");
-  const [createdAt, setCreatedAt] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState("");
   const [msgType, setMsgType] = useState<"ok" | "err">("ok");
-  const [loading, setLoading] = useState(true);
-  const fileRef = useRef<HTMLInputElement>(null);
 
   const showMsg = (text: string, type: "ok" | "err" = "ok") => {
     setMsg(text);
     setMsgType(type);
   };
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await adminUsers.getProfile(username);
-        if (res.code === 200 && res.data) {
-          setAvatar(res.data.avatar);
-          setAvatarPreview(res.data.avatar);
-          setCreatedAt(res.data.createdAt);
-        }
-      } catch {
-        /* ignore */
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [username]);
 
   const handleAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -86,49 +56,33 @@ export default function Profile() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword && newPassword !== confirmPwd) {
+    if (password !== confirmPwd) {
       showMsg("两次密码输入不一致", "err");
       return;
     }
     try {
-      let avatarUrl = avatar;
-      if (avatarFile) {
-        const upRes = await uploadAdminAvatar(avatarFile);
-        if (upRes.code === 200 && upRes.data) {
-          avatarUrl = upRes.data;
-        } else {
-          showMsg(upRes.message || "头像上传失败", "err");
-          return;
-        }
-      }
-      const res = await adminUsers.updateProfile(
-        username,
-        newPassword || null,
-        avatarUrl
-      );
+      const res = await appUsers.add(username, email, password);
       if (res.code === 200) {
-        showMsg("更新成功");
-        setAvatar(avatarUrl);
-        setAvatarPreview(avatarUrl);
-        setAvatarFile(null);
-        setNewPassword("");
+        if (avatarFile) {
+          const upRes = await uploadUserAvatar(avatarFile);
+          if (upRes.code === 200 && upRes.data) {
+            await appUsers.updateProfile(username, null, upRes.data);
+          }
+        }
+        showMsg("添加用户成功");
+        setUsername("");
+        setEmail("");
+        setPassword("");
         setConfirmPwd("");
-        window.dispatchEvent(new CustomEvent("avatar-updated", { detail: avatarUrl }));
+        setAvatarPreview(null);
+        setAvatarFile(null);
       } else {
         showMsg(res.message, "err");
       }
     } catch {
-      showMsg("更新失败", "err");
+      showMsg("添加失败", "err");
     }
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center" style={{ minHeight: "60vh" }}>
-        <span style={{ color: "rgba(255,255,255,0.48)", fontSize: 17 }}>加载中...</span>
-      </div>
-    );
-  }
 
   return (
     <div style={{ padding: "48px 48px" }}>
@@ -142,7 +96,7 @@ export default function Profile() {
           margin: "0 0 8px",
         }}
       >
-        个人信息
+        添加用户
       </h1>
       <p
         style={{
@@ -154,7 +108,7 @@ export default function Profile() {
           marginBottom: 40,
         }}
       >
-        修改头像和密码
+        创建新的普通用户账号
       </p>
 
       <MessageDialog
@@ -172,14 +126,13 @@ export default function Profile() {
         }}
       >
         <form onSubmit={handleSubmit}>
-          {/* Avatar + Info */}
-          <div style={{ display: "flex", alignItems: "center", gap: 24, marginBottom: 32 }}>
+          <div style={{ marginBottom: 24, display: "flex", alignItems: "center", gap: 20 }}>
             <div
               onClick={() => fileRef.current?.click()}
               className="cursor-pointer"
               style={{
-                width: 88,
-                height: 88,
+                width: 72,
+                height: 72,
                 borderRadius: "50%",
                 backgroundColor: "var(--apple-surface-2)",
                 backgroundImage: sanitizeUrl(avatarPreview) ? `url(${sanitizeUrl(avatarPreview)})` : "none",
@@ -188,27 +141,16 @@ export default function Profile() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 28,
+                fontSize: 24,
                 color: "rgba(255,255,255,0.32)",
                 flexShrink: 0,
               }}
             >
-              {!avatarPreview && username.charAt(0).toUpperCase()}
+              {!avatarPreview && "+"}
             </div>
             <div>
-              <div style={{ fontSize: 21, fontWeight: 600, color: "#ffffff", marginBottom: 4 }}>
-                {username}
-              </div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>
-                创建于 {createdAt}
-              </div>
-              <div
-                onClick={() => fileRef.current?.click()}
-                className="cursor-pointer"
-                style={{ fontSize: 14, color: "var(--apple-link-dark)", marginTop: 8 }}
-              >
-                更换头像
-              </div>
+              <label style={labelStyle}>头像</label>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>点击圆圈上传，使用 R2 存储，支持 JPG/PNG，最大 5MB</div>
             </div>
             <input
               ref={fileRef}
@@ -219,24 +161,50 @@ export default function Profile() {
             />
           </div>
 
-          {/* Password */}
           <div style={{ marginBottom: 16 }}>
-            <label style={labelStyle}>新密码</label>
+            <label style={labelStyle}>用户名</label>
             <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="留空则不修改密码"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="新用户用户名"
+              required
               style={inputStyle}
             />
           </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <label style={labelStyle}>邮箱</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="用户邮箱"
+              required
+              style={inputStyle}
+            />
+          </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <label style={labelStyle}>密码</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="设置密码"
+              required
+              style={inputStyle}
+            />
+          </div>
+
           <div style={{ marginBottom: 24 }}>
-            <label style={labelStyle}>确认新密码</label>
+            <label style={labelStyle}>确认密码</label>
             <input
               type="password"
               value={confirmPwd}
               onChange={(e) => setConfirmPwd(e.target.value)}
-              placeholder="再次输入新密码"
+              placeholder="再次输入密码"
+              required
               style={inputStyle}
             />
           </div>
@@ -254,7 +222,7 @@ export default function Profile() {
               fontWeight: 400,
             }}
           >
-            保存
+            添加
           </button>
         </form>
       </div>
