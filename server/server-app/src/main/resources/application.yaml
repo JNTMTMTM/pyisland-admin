@@ -10,7 +10,7 @@ spring:
     redis:
       cache-null-values: false
       use-key-prefix: true
-      key-prefix: server:
+      key-prefix: 'server:'
       time-to-live: ${REDIS_CACHE_TTL}
   data:
     redis:
