@@ -65,7 +65,7 @@ public class AuthController {
      */
     @PostMapping("/admin/login")
     public ResponseEntity<?> adminLogin(@RequestBody LoginRequest request, HttpServletRequest http) {
-        return doLogin(request, http, User.ROLE_ADMIN);
+        return doLoginByAccount(request, http, User.ROLE_ADMIN);
     }
 
     /**
@@ -76,7 +76,29 @@ public class AuthController {
      */
     @PostMapping("/user/login")
     public ResponseEntity<?> userLogin(@RequestBody LoginRequest request, HttpServletRequest http) {
-        return doLogin(request, http, User.ROLE_USER);
+        return doLoginByAccount(request, http, User.ROLE_USER);
+    }
+
+    /**
+     * 普通用户账户登录（用户名）。
+     * @param request 登录请求。
+     * @param http HTTP 请求上下文。
+     * @return 登录结果。
+     */
+    @PostMapping("/user/login/account")
+    public ResponseEntity<?> userLoginByAccount(@RequestBody LoginRequest request, HttpServletRequest http) {
+        return doLoginByAccount(request, http, User.ROLE_USER);
+    }
+
+    /**
+     * 普通用户邮箱登录。
+     * @param request 邮箱登录请求。
+     * @param http HTTP 请求上下文。
+     * @return 登录结果。
+     */
+    @PostMapping("/user/login/email")
+    public ResponseEntity<?> userLoginByEmail(@RequestBody EmailLoginRequest request, HttpServletRequest http) {
+        return doLoginByEmail(request, http, User.ROLE_USER);
     }
 
     /**
@@ -165,21 +187,56 @@ public class AuthController {
         return okData("注册成功", data);
     }
 
-    private ResponseEntity<?> doLogin(LoginRequest request, HttpServletRequest http, String expectedRole) {
+    private ResponseEntity<?> doLoginByAccount(LoginRequest request, HttpServletRequest http, String expectedRole) {
         if (request == null || request.username() == null || request.username().isBlank()
                 || request.password() == null || request.password().isBlank()) {
             return error(400, "用户名和密码不能为空");
         }
         String ip = ClientIpUtil.resolve(http);
-        String rateKey = "login:" + expectedRole + ":" + request.username() + ":" + ip;
+        String account = request.username().trim();
+        String rateKey = "login:account:" + expectedRole + ":" + account + ":" + ip;
         long locked = authRateLimiter.remainingLoginLockSeconds(rateKey);
         if (locked > 0) {
             return error(429, "登录失败次数过多，请 " + locked + " 秒后再试");
         }
-        User user = userService.authenticate(request.username(), request.password());
+        User user = userService.authenticateByUsername(account, request.password());
         if (user == null) {
             authRateLimiter.recordLoginFailure(rateKey);
             return error(401, "用户名或密码错误");
+        }
+        if (!expectedRole.equals(user.getRole())) {
+            authRateLimiter.recordLoginFailure(rateKey);
+            return error(403, "无此角色登录权限");
+        }
+        authRateLimiter.recordLoginSuccess(rateKey);
+        String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
+        userService.updateSessionToken(user.getUsername(), token);
+        log.info("{} login success username={}", expectedRole, user.getUsername());
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("token", token);
+        data.put("username", user.getUsername());
+        data.put("email", user.getEmail());
+        data.put("role", user.getRole());
+        return okData("登录成功", data);
+    }
+
+    private ResponseEntity<?> doLoginByEmail(EmailLoginRequest request, HttpServletRequest http, String expectedRole) {
+        if (request == null || request.email() == null || request.email().isBlank()
+                || request.password() == null || request.password().isBlank()) {
+            return error(400, "邮箱和密码不能为空");
+        }
+        String ip = ClientIpUtil.resolve(http);
+        String email = request.email().trim().toLowerCase(Locale.ROOT);
+        String rateKey = "login:email:" + expectedRole + ":" + email + ":" + ip;
+        long locked = authRateLimiter.remainingLoginLockSeconds(rateKey);
+        if (locked > 0) {
+            return error(429, "登录失败次数过多，请 " + locked + " 秒后再试");
+        }
+        User user = userService.authenticateByEmail(email, request.password());
+        if (user == null) {
+            authRateLimiter.recordLoginFailure(rateKey);
+            return error(401, "邮箱或密码错误");
         }
         if (!expectedRole.equals(user.getRole())) {
             authRateLimiter.recordLoginFailure(rateKey);
@@ -265,6 +322,14 @@ public class AuthController {
      * @param password 密码。
      */
     public record LoginRequest(String username, String password) {
+    }
+
+    /**
+     * 邮箱登录请求体。
+     * @param email 邮箱。
+     * @param password 密码。
+     */
+    public record EmailLoginRequest(String email, String password) {
     }
 
     /**

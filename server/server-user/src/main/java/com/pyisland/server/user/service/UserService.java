@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * 统一用户服务。登录/注册/资料管理/角色调整集中于此。
@@ -30,13 +31,50 @@ public class UserService {
     }
 
     /**
-     * 校验登录。成功时若仍使用旧 SHA-256 哈希则自动升级为 BCrypt。
+     * 按用户名校验登录。成功时若仍使用旧 SHA-256 哈希则自动升级为 BCrypt。
      * @param username 用户名。
      * @param password 明文密码。
      * @return 认证成功返回用户实体，否则返回 null。
      */
-    public User authenticate(String username, String password) {
-        User user = userMapper.selectByUsername(username);
+    public User authenticateByUsername(String username, String password) {
+        String normalizedUsername = username == null ? "" : username.trim();
+        if (normalizedUsername.isEmpty()) {
+            return null;
+        }
+        User user = userMapper.selectByUsername(normalizedUsername);
+        return authenticateUser(user, password);
+    }
+
+    /**
+     * 按邮箱校验登录。成功时若仍使用旧 SHA-256 哈希则自动升级为 BCrypt。
+     * @param email 邮箱。
+     * @param password 明文密码。
+     * @return 认证成功返回用户实体，否则返回 null。
+     */
+    public User authenticateByEmail(String email, String password) {
+        String normalizedEmail = email == null ? "" : email.trim().toLowerCase(Locale.ROOT);
+        if (normalizedEmail.isEmpty()) {
+            return null;
+        }
+        User user = userMapper.selectByEmail(normalizedEmail);
+        return authenticateUser(user, password);
+    }
+
+    /**
+     * 兼容认证入口：先按用户名，再按邮箱。
+     * @param account 登录账号（用户名或邮箱）。
+     * @param password 明文密码。
+     * @return 认证成功返回用户实体，否则返回 null。
+     */
+    public User authenticate(String account, String password) {
+        User byUsername = authenticateByUsername(account, password);
+        if (byUsername != null) {
+            return byUsername;
+        }
+        return authenticateByEmail(account, password);
+    }
+
+    private User authenticateUser(User user, String password) {
         if (user == null) {
             return null;
         }
