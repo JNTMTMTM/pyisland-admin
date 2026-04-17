@@ -52,6 +52,13 @@ INSERT IGNORE INTO service_status (api_name, status, message, remark) VALUES
     ('app-users.profile.update',    1, '', 'PUT /v1/app-users/profile - 更新用户资料'),
 
     -- --------------------------------------------------------
+    --  统一用户管理（合表）  /v1/admin/users
+    -- --------------------------------------------------------
+    ('admin.users.list',            1, '', 'GET /v1/admin/users - 统一用户列表（可按 role 过滤）'),
+    ('admin.users.role.update',     1, '', 'PUT /v1/admin/users/role - 更新用户角色（设为管理员/降为普通用户）'),
+    ('admin.users.enabled.update', 1, '', 'PUT /v1/admin/users/enabled - 启用或禁用账号'),
+
+    -- --------------------------------------------------------
     --  用户自助（用户侧）  /v1/user
     -- --------------------------------------------------------
     ('user.profile.get',            1, '', 'GET /v1/user/profile - 获取自己的资料'),

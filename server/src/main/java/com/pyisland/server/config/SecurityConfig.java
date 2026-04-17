@@ -56,8 +56,8 @@ public class SecurityConfig {
 
     /**
      * 安全过滤器链。
-     * <p>放行 /auth/**、版本查询、服务状态查询、头像上传等公共接口；/v1/user/** 允许登录用户；
-     * 其余路径默认要求 ADMIN。</p>
+     * 放行 /auth/**、版本查询、服务状态查询、头像上传等公共接口；/v1/user/** 允许登录用户；
+     * 其余路径默认要求 ADMIN。
      * @param http HttpSecurity。
      * @param jwtFilter JWT 过滤器。
      * @param entryPoint 401 处理器。

@@ -19,8 +19,8 @@ import java.util.Map;
 
 /**
  * 管理面板：统一用户管理接口。
- * <p>合表后提供 /v1/admin/users 下的全量用户列表、角色变更与启用禁用。
- * 老前端仍可继续使用 /v1/admin-users 与 /v1/app-users 分别查询 admin / user。</p>
+ * 合表后提供 /v1/admin/users 下的全量用户列表、角色变更与启用禁用。
+ * 老前端仍可继续使用 /v1/admin-users 与 /v1/app-users 分别查询 admin / user。
  */
 @RestController
 @RequestMapping("/v1/admin/users")

@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * 首任管理员引导：应用启动完成后执行。
- * <p>当 user_account 中不存在任何管理员、且配置了
+ * 当 user_account 中不存在任何管理员、且配置了
  * {@code admin.bootstrap.username} / {@code admin.bootstrap.password} 时，
- * 自动插入第一个管理员账号。</p>
+ * 自动插入第一个管理员账号。
  */
 @Component
 public class AdminBootstrapRunner {
