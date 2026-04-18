@@ -76,6 +76,20 @@ public class WallpaperUserController {
         ));
     }
 
+    @GetMapping("/mine")
+    public ResponseEntity<?> listMine(@RequestParam(value = "keyword", required = false) String keyword,
+                                      @RequestParam(value = "type", required = false) String type,
+                                      @RequestParam(value = "sort", required = false) String sort,
+                                      @RequestParam(value = "page", defaultValue = "1") int page,
+                                      @RequestParam(value = "pageSize", defaultValue = "50") int pageSize,
+                                      Authentication authentication) {
+        return ResponseEntity.ok(Map.of(
+                "code", 200,
+                "message", "success",
+                "data", wallpaperMarketService.listOwn(authentication.getName(), keyword, type, sort, page, pageSize)
+        ));
+    }
+
     @GetMapping("/detail")
     public ResponseEntity<?> detail(@RequestParam("id") Long id) {
         Map<String, Object> data = wallpaperMarketService.detail(id);

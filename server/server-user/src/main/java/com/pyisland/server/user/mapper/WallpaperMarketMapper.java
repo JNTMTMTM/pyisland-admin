@@ -37,6 +37,13 @@ public interface WallpaperMarketMapper {
                                             @Param("offset") int offset,
                                             @Param("limit") int limit);
 
+    List<Map<String, Object>> listMine(@Param("ownerUsername") String ownerUsername,
+                                       @Param("keyword") String keyword,
+                                       @Param("type") String type,
+                                       @Param("sortBy") String sortBy,
+                                       @Param("offset") int offset,
+                                       @Param("limit") int limit);
+
     List<Map<String, Object>> listAdmin(@Param("keyword") String keyword,
                                         @Param("type") String type,
                                         @Param("status") String status,

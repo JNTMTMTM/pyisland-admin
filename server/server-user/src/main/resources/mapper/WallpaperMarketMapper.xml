@@ -127,6 +127,48 @@
         LIMIT #{offset}, #{limit}
     </select>
 
+    <select id="listMine" resultType="map">
+        SELECT wa.id,
+               wa.owner_username AS ownerUsername,
+               ua.avatar AS ownerAvatar,
+               wa.title,
+               wa.description,
+               wa.type,
+               wa.status,
+               wa.original_url AS originalUrl,
+               wa.thumb_320_url AS thumb320Url,
+               wa.thumb_720_url AS thumb720Url,
+               wa.thumb_1280_url AS thumb1280Url,
+               wa.tags_text AS tagsText,
+               wa.rating_avg AS ratingAvg,
+               wa.rating_count AS ratingCount,
+               wa.download_count AS downloadCount,
+               wa.apply_count AS applyCount,
+               wa.created_at AS createdAt,
+               wa.updated_at AS updatedAt,
+               wa.published_at AS publishedAt
+        FROM wallpaper_asset wa
+        LEFT JOIN user_account ua ON ua.username = wa.owner_username
+        WHERE wa.deleted = 0
+          AND wa.owner_username = #{ownerUsername}
+        <if test="type != null and type != ''">
+          AND wa.type = #{type}
+        </if>
+        <if test="keyword != null and keyword != ''">
+          AND (
+            wa.title LIKE CONCAT('%', #{keyword}, '%')
+            OR wa.description LIKE CONCAT('%', #{keyword}, '%')
+            OR wa.tags_text LIKE CONCAT('%', #{keyword}, '%')
+          )
+        </if>
+        <choose>
+            <when test="sortBy == 'rating'">ORDER BY wa.rating_avg DESC, wa.rating_count DESC, wa.id DESC</when>
+            <when test="sortBy == 'apply'">ORDER BY wa.apply_count DESC, wa.download_count DESC, wa.id DESC</when>
+            <otherwise>ORDER BY wa.updated_at DESC, wa.id DESC</otherwise>
+        </choose>
+        LIMIT #{offset}, #{limit}
+    </select>
+
     <select id="listAdmin" resultType="map">
         SELECT wa.id,
                wa.owner_username AS ownerUsername,

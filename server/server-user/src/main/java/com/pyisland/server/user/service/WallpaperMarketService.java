@@ -41,7 +41,7 @@ public class WallpaperMarketService {
         this.redisTemplate = redisTemplate;
     }
 
-    @CacheEvict(cacheNames = {"wallpaper-list", "wallpaper-admin-list"}, allEntries = true, cacheManager = "wallpaperCacheManager")
+    @CacheEvict(cacheNames = {"wallpaper-list", "wallpaper-admin-list", "wallpaper-my-list"}, allEntries = true, cacheManager = "wallpaperCacheManager")
     public Long create(String ownerUsername,
                        String title,
                        String description,
@@ -121,6 +121,24 @@ public class WallpaperMarketService {
     }
 
     @Cacheable(
+        cacheNames = "wallpaper-my-list",
+        key = "#ownerUsername + ':' + (#keyword ?: '') + ':' + (#type ?: '') + ':' + (#sortBy ?: '') + ':' + #page + ':' + #pageSize",
+        cacheManager = "wallpaperCacheManager",
+        unless = "#result == null"
+    )
+    public List<Map<String, Object>> listOwn(String ownerUsername, String keyword, String type, String sortBy, int page, int pageSize) {
+        int safePage = Math.max(1, page);
+        int safeSize = Math.min(100, Math.max(1, pageSize));
+        int offset = (safePage - 1) * safeSize;
+        return mapper.listMine(ownerUsername,
+                safeText(keyword, 100),
+                normalizeTypeAllowBlank(type),
+                normalizeSort(sortBy),
+                offset,
+                safeSize);
+    }
+
+    @Cacheable(
         cacheNames = "wallpaper-detail",
         key = "#id",
         cacheManager = "wallpaperCacheManager",
@@ -132,7 +150,7 @@ public class WallpaperMarketService {
 
     @Caching(evict = {
         @CacheEvict(cacheNames = "wallpaper-detail", key = "#id", cacheManager = "wallpaperCacheManager"),
-        @CacheEvict(cacheNames = {"wallpaper-list", "wallpaper-admin-list"}, allEntries = true, cacheManager = "wallpaperCacheManager")
+        @CacheEvict(cacheNames = {"wallpaper-list", "wallpaper-admin-list", "wallpaper-my-list"}, allEntries = true, cacheManager = "wallpaperCacheManager")
     })
     public boolean updateOwnerMetadata(Long id,
                                        String ownerUsername,
@@ -151,7 +169,7 @@ public class WallpaperMarketService {
 
     @Caching(evict = {
         @CacheEvict(cacheNames = "wallpaper-detail", key = "#id", cacheManager = "wallpaperCacheManager"),
-        @CacheEvict(cacheNames = {"wallpaper-list", "wallpaper-admin-list"}, allEntries = true, cacheManager = "wallpaperCacheManager")
+        @CacheEvict(cacheNames = {"wallpaper-list", "wallpaper-admin-list", "wallpaper-my-list"}, allEntries = true, cacheManager = "wallpaperCacheManager")
     })
     public boolean replaceOwnerSource(Long id,
                                       String ownerUsername,
@@ -210,7 +228,7 @@ public class WallpaperMarketService {
 
     @Caching(evict = {
         @CacheEvict(cacheNames = "wallpaper-detail", key = "#id", cacheManager = "wallpaperCacheManager"),
-        @CacheEvict(cacheNames = {"wallpaper-list", "wallpaper-admin-list"}, allEntries = true, cacheManager = "wallpaperCacheManager")
+        @CacheEvict(cacheNames = {"wallpaper-list", "wallpaper-admin-list", "wallpaper-my-list"}, allEntries = true, cacheManager = "wallpaperCacheManager")
     })
     public boolean deleteOwnerWallpaper(Long id, String ownerUsername) {
         return mapper.markOwnerDeleted(id, ownerUsername, LocalDateTime.now()) > 0;
@@ -218,7 +236,7 @@ public class WallpaperMarketService {
 
     @Caching(evict = {
         @CacheEvict(cacheNames = "wallpaper-detail", key = "#id", cacheManager = "wallpaperCacheManager"),
-        @CacheEvict(cacheNames = {"wallpaper-list", "wallpaper-admin-list"}, allEntries = true, cacheManager = "wallpaperCacheManager")
+        @CacheEvict(cacheNames = {"wallpaper-list", "wallpaper-admin-list", "wallpaper-my-list"}, allEntries = true, cacheManager = "wallpaperCacheManager")
     })
     public boolean apply(Long id, String username, String ip, String userAgent) {
         if (!checkRateLimit("wallpaper:apply:" + username, 60, 20)) {
@@ -242,7 +260,7 @@ public class WallpaperMarketService {
 
     @Caching(evict = {
         @CacheEvict(cacheNames = "wallpaper-detail", key = "#id", cacheManager = "wallpaperCacheManager"),
-        @CacheEvict(cacheNames = {"wallpaper-list", "wallpaper-admin-list"}, allEntries = true, cacheManager = "wallpaperCacheManager")
+        @CacheEvict(cacheNames = {"wallpaper-list", "wallpaper-admin-list", "wallpaper-my-list"}, allEntries = true, cacheManager = "wallpaperCacheManager")
     })
     public boolean rate(Long id, String username, int score) {
         if (score < 1 || score > 5) {
@@ -280,7 +298,7 @@ public class WallpaperMarketService {
 
     @Caching(evict = {
         @CacheEvict(cacheNames = "wallpaper-detail", key = "#id", cacheManager = "wallpaperCacheManager"),
-        @CacheEvict(cacheNames = {"wallpaper-list", "wallpaper-admin-list"}, allEntries = true, cacheManager = "wallpaperCacheManager")
+        @CacheEvict(cacheNames = {"wallpaper-list", "wallpaper-admin-list", "wallpaper-my-list"}, allEntries = true, cacheManager = "wallpaperCacheManager")
     })
     public boolean adminUpdateMetadata(Long id,
                                        String title,
@@ -302,7 +320,7 @@ public class WallpaperMarketService {
 
     @Caching(evict = {
         @CacheEvict(cacheNames = "wallpaper-detail", key = "#id", cacheManager = "wallpaperCacheManager"),
-        @CacheEvict(cacheNames = {"wallpaper-list", "wallpaper-admin-list"}, allEntries = true, cacheManager = "wallpaperCacheManager")
+        @CacheEvict(cacheNames = {"wallpaper-list", "wallpaper-admin-list", "wallpaper-my-list"}, allEntries = true, cacheManager = "wallpaperCacheManager")
     })
     public boolean adminReview(Long id, String reviewerName, String action, String reason) {
         String normalizedAction = safeText(action, 30);
@@ -352,7 +370,7 @@ public class WallpaperMarketService {
 
     @Caching(evict = {
         @CacheEvict(cacheNames = "wallpaper-detail", key = "#wallpaperId", cacheManager = "wallpaperCacheManager"),
-        @CacheEvict(cacheNames = {"wallpaper-list", "wallpaper-admin-list"}, allEntries = true, cacheManager = "wallpaperCacheManager")
+        @CacheEvict(cacheNames = {"wallpaper-list", "wallpaper-admin-list", "wallpaper-my-list"}, allEntries = true, cacheManager = "wallpaperCacheManager")
     })
     public boolean adminDeleteRating(Long ratingId, Long wallpaperId) {
         int deleted = mapper.deleteRatingById(ratingId);
