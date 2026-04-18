@@ -21,6 +21,7 @@ import Profile from "./pages/Profile";
 import ApiStatusPage from "./pages/ApiStatus";
 import ApiStatusManage from "./pages/ApiStatusManage";
 import ApiDebug from "./pages/ApiDebug";
+import WallpaperReview from "./pages/WallpaperReview";
 
 /**
  * 鉴权路由包装器。
@@ -59,6 +60,7 @@ export default function App() {
           <Route path="/api-status" element={<ApiStatusPage />} />
           <Route path="/api-message" element={<ApiStatusManage />} />
           <Route path="/api-debug" element={<ApiDebug />} />
+          <Route path="/wallpapers/review" element={<WallpaperReview />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

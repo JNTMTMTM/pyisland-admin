@@ -165,6 +165,49 @@ export interface ApiStatus {
   updatedAt: string;
 }
 
+export interface WallpaperAdminItem {
+  id: number;
+  ownerUsername: string;
+  title: string;
+  description: string;
+  type: string;
+  status: string;
+  tagsText: string;
+  originalUrl: string;
+  thumb320Url?: string;
+  thumb720Url?: string;
+  thumb1280Url?: string;
+  ratingAvg?: number;
+  ratingCount?: number;
+  downloadCount?: number;
+  applyCount?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  publishedAt?: string | null;
+}
+
+export interface WallpaperReportItem {
+  id: number;
+  wallpaperId: number;
+  reporterUsername: string;
+  reasonType: string;
+  reasonDetail: string;
+  status: string;
+  resolutionNote?: string;
+  resolvedBy?: string;
+  createdAt?: string;
+  resolvedAt?: string;
+}
+
+export interface WallpaperRatingItem {
+  id: number;
+  wallpaperId: number;
+  username: string;
+  score: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export const auth = {
   adminLogin(username: string, password: string) {
     return request<ApiResponse<LoginData>>("/auth/admin/login", {
@@ -323,6 +366,71 @@ export const adminUsers = {
       method: "PUT",
       body: JSON.stringify({ username, password, avatar }),
     });
+  },
+};
+
+export const wallpaperAdmin = {
+  list(params?: {
+    keyword?: string;
+    type?: string;
+    status?: string;
+    page?: number;
+    pageSize?: number;
+  }) {
+    const query = new URLSearchParams();
+    if (params?.keyword) query.set("keyword", params.keyword);
+    if (params?.type) query.set("type", params.type);
+    if (params?.status) query.set("status", params.status);
+    if (params?.page) query.set("page", String(params.page));
+    if (params?.pageSize) query.set("pageSize", String(params.pageSize));
+    const qs = query.toString();
+    return request<ApiResponse<WallpaperAdminItem[]>>(`/v1/admin/wallpapers/list${qs ? `?${qs}` : ""}`);
+  },
+  updateMetadata(payload: {
+    id: number;
+    title: string;
+    description: string;
+    type: string;
+    tags: string;
+    status: string;
+  }) {
+    return request<ApiResponse>("/v1/admin/wallpapers/metadata", {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+  },
+  review(payload: { id: number; action: "approve" | "reject" | "delist" | "relist"; reason: string }) {
+    return request<ApiResponse>("/v1/admin/wallpapers/review", {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+  },
+  reports(params?: { status?: string; page?: number; pageSize?: number }) {
+    const query = new URLSearchParams();
+    if (params?.status) query.set("status", params.status);
+    if (params?.page) query.set("page", String(params.page));
+    if (params?.pageSize) query.set("pageSize", String(params.pageSize));
+    const qs = query.toString();
+    return request<ApiResponse<WallpaperReportItem[]>>(`/v1/admin/wallpapers/reports${qs ? `?${qs}` : ""}`);
+  },
+  resolveReport(payload: { id: number; status: string; resolutionNote: string }) {
+    return request<ApiResponse>("/v1/admin/wallpapers/reports/resolve", {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+  },
+  ratings(wallpaperId: number, page = 1, pageSize = 20) {
+    const query = new URLSearchParams();
+    query.set("wallpaperId", String(wallpaperId));
+    query.set("page", String(page));
+    query.set("pageSize", String(pageSize));
+    return request<ApiResponse<WallpaperRatingItem[]>>(`/v1/admin/wallpapers/ratings?${query.toString()}`);
+  },
+  deleteRating(id: number, wallpaperId: number) {
+    return request<ApiResponse>(
+      `/v1/admin/wallpapers/ratings?id=${encodeURIComponent(String(id))}&wallpaperId=${encodeURIComponent(String(wallpaperId))}`,
+      { method: "DELETE" }
+    );
   },
 };
 
