@@ -192,7 +192,11 @@ public class WallpaperMarketService {
         if (!checkRateLimit("wallpaper:apply:" + username, 60, 20)) {
             return false;
         }
-        if (mapper.incrementApplyAndDownload(id) <= 0) {
+        boolean firstTime = mapper.countApplyByUser(id, username) == 0;
+        int updated = firstTime
+                ? mapper.incrementApplyAndDownload(id)
+                : mapper.incrementDownloadOnly(id);
+        if (updated <= 0) {
             return false;
         }
         mapper.insertApplyLog(id,

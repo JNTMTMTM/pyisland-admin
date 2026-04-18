@@ -77,6 +77,11 @@ public interface WallpaperMarketMapper {
 
     int incrementApplyAndDownload(@Param("id") Long id);
 
+    int incrementDownloadOnly(@Param("id") Long id);
+
+    int countApplyByUser(@Param("wallpaperId") Long wallpaperId,
+                         @Param("username") String username);
+
     int insertApplyLog(@Param("wallpaperId") Long wallpaperId,
                        @Param("username") String username,
                        @Param("ipHash") String ipHash,

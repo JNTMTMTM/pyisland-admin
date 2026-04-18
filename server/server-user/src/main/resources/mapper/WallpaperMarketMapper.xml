@@ -231,6 +231,22 @@
           AND status = 'published'
     </update>
 
+    <update id="incrementDownloadOnly">
+        UPDATE wallpaper_asset
+        SET download_count = download_count + 1,
+            updated_at = NOW()
+        WHERE id = #{id}
+          AND deleted = 0
+          AND status = 'published'
+    </update>
+
+    <select id="countApplyByUser" resultType="int">
+        SELECT COUNT(*) FROM wallpaper_apply_log
+        WHERE wallpaper_id = #{wallpaperId}
+          AND username = #{username}
+          AND action = 'apply'
+    </select>
+
     <insert id="insertApplyLog">
         INSERT INTO wallpaper_apply_log
         (wallpaper_id, username, ip_hash, user_agent, action, created_at)
