@@ -1,10 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import MessageDialog from "../components/MessageDialog";
-import {
-  sanitizeUrl,
-  wallpaperAdmin,
-  type WallpaperAdminItem,
-} from "../api";
+import { sanitizeUrl, wallpaperAdmin, type WallpaperAdminItem, type WallpaperRatingItem } from "../api";
 
 const pagePaddingStyle: React.CSSProperties = { padding: "48px 48px" };
 const cardStyle: React.CSSProperties = {
@@ -43,33 +39,19 @@ function statusColor(status: string): string {
   if (s === "published") return "#30d158";
   if (s === "pending") return "#ffd60a";
   if (s === "rejected" || s === "delisted") return "#ff453a";
-  if (s === "resolved") return "#30d158";
   return "rgba(255,255,255,0.72)";
 }
 
-export default function WallpaperReview() {
+export default function WallpaperRatingManage() {
   const [wallpapers, setWallpapers] = useState<WallpaperAdminItem[]>([]);
-  const [loadingWallpapers, setLoadingWallpapers] = useState(true);
-  const [msg, setMsg] = useState("");
-  const [msgType, setMsgType] = useState<"ok" | "err">("ok");
-
+  const [ratings, setRatings] = useState<WallpaperRatingItem[]>([]);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   const [keyword, setKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [reviewAction, setReviewAction] = useState<"approve" | "reject" | "delist" | "relist">("approve");
-  const [reviewReason, setReviewReason] = useState("");
-
-  const [editTitle, setEditTitle] = useState("");
-  const [editDescription, setEditDescription] = useState("");
-  const [editTags, setEditTags] = useState("");
-  const [editType, setEditType] = useState("image");
-  const [editStatus, setEditStatus] = useState("pending");
-
-  const selectedWallpaper = useMemo(
-    () => wallpapers.find((w) => w.id === selectedId) || null,
-    [selectedId, wallpapers]
-  );
+  const [loadingWallpapers, setLoadingWallpapers] = useState(true);
+  const [loadingRatings, setLoadingRatings] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [msgType, setMsgType] = useState<"ok" | "err">("ok");
 
   const showMsg = (text: string, type: "ok" | "err" = "ok") => {
     setMsg(text);
@@ -100,59 +82,49 @@ export default function WallpaperReview() {
     }
   };
 
+  const loadRatings = async (wallpaperId: number) => {
+    setLoadingRatings(true);
+    try {
+      const res = await wallpaperAdmin.ratings(wallpaperId, 1, 50);
+      if (res.code === 200 && Array.isArray(res.data)) {
+        setRatings(res.data);
+      } else {
+        showMsg(res.message || "加载评分失败", "err");
+      }
+    } catch {
+      showMsg("加载评分失败", "err");
+    } finally {
+      setLoadingRatings(false);
+    }
+  };
+
   useEffect(() => {
     loadWallpapers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (!selectedWallpaper) return;
-    setEditTitle(selectedWallpaper.title || "");
-    setEditDescription(selectedWallpaper.description || "");
-    setEditTags(selectedWallpaper.tagsText || "");
-    setEditType(selectedWallpaper.type || "image");
-    setEditStatus(selectedWallpaper.status || "pending");
-  }, [selectedWallpaper]);
-
-  const submitReview = async () => {
-    if (!selectedWallpaper) return;
-    try {
-      const res = await wallpaperAdmin.review({
-        id: selectedWallpaper.id,
-        action: reviewAction,
-        reason: reviewReason.trim(),
-      });
-      if (res.code === 200) {
-        showMsg("审核操作完成");
-        setReviewReason("");
-        await loadWallpapers();
-      } else {
-        showMsg(res.message || "审核操作失败", "err");
-      }
-    } catch {
-      showMsg("审核操作失败", "err");
+    if (!selectedId) {
+      setRatings([]);
+      return;
     }
-  };
+    loadRatings(selectedId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId]);
 
-  const saveMetadata = async () => {
-    if (!selectedWallpaper) return;
+  const removeRating = async (id: number) => {
+    if (!selectedId) return;
     try {
-      const res = await wallpaperAdmin.updateMetadata({
-        id: selectedWallpaper.id,
-        title: editTitle,
-        description: editDescription,
-        type: editType,
-        tags: editTags,
-        status: editStatus,
-      });
+      const res = await wallpaperAdmin.deleteRating(id, selectedId);
       if (res.code === 200) {
-        showMsg("元数据更新成功");
+        showMsg("评分删除成功");
+        await loadRatings(selectedId);
         await loadWallpapers();
       } else {
-        showMsg(res.message || "元数据更新失败", "err");
+        showMsg(res.message || "评分删除失败", "err");
       }
     } catch {
-      showMsg("元数据更新失败", "err");
+      showMsg("评分删除失败", "err");
     }
   };
 
@@ -168,7 +140,7 @@ export default function WallpaperReview() {
           margin: "0 0 8px",
         }}
       >
-        壁纸审核
+        评分管理
       </h1>
       <p
         style={{
@@ -179,7 +151,7 @@ export default function WallpaperReview() {
           marginBottom: 24,
         }}
       >
-        管理壁纸元数据与审核状态
+        按壁纸查看与管理用户评分记录
       </p>
 
       <MessageDialog visible={!!msg} type={msgType} message={msg} onClose={() => setMsg("")} />
@@ -222,7 +194,6 @@ export default function WallpaperReview() {
                   <th style={thStyle}>作者</th>
                   <th style={thStyle}>状态</th>
                   <th style={thStyle}>评分</th>
-                  <th style={thStyle}>应用/下载</th>
                 </tr>
               </thead>
               <tbody>
@@ -247,7 +218,6 @@ export default function WallpaperReview() {
                         <span style={{ color: statusColor(item.status) }}>{item.status || "-"}</span>
                       </td>
                       <td style={tdStyle}>{Number(item.ratingAvg || 0).toFixed(1)} ({item.ratingCount || 0})</td>
-                      <td style={tdStyle}>{item.applyCount || 0} / {item.downloadCount || 0}</td>
                     </tr>
                   );
                 })}
@@ -257,57 +227,49 @@ export default function WallpaperReview() {
         )}
       </div>
 
-      {selectedWallpaper && (
-        <div style={{ ...cardStyle, marginBottom: 16 }}>
-          <h2 style={{ margin: "0 0 12px", color: "#fff", fontSize: 20 }}>审核与元数据</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
-            <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} style={inputStyle} placeholder="标题" />
-            <input value={editTags} onChange={(e) => setEditTags(e.target.value)} style={inputStyle} placeholder="标签（逗号分隔）" />
-            <textarea
-              value={editDescription}
-              onChange={(e) => setEditDescription(e.target.value)}
-              style={{ ...inputStyle, minHeight: 72, resize: "vertical", gridColumn: "1 / -1" }}
-              placeholder="描述"
-            />
-            <select value={editType} onChange={(e) => setEditType(e.target.value)} style={inputStyle}>
-              <option value="image">image</option>
-              <option value="video">video</option>
-            </select>
-            <select value={editStatus} onChange={(e) => setEditStatus(e.target.value)} style={inputStyle}>
-              <option value="pending">pending</option>
-              <option value="published">published</option>
-              <option value="rejected">rejected</option>
-              <option value="delisted">delisted</option>
-            </select>
+      <div style={cardStyle}>
+        <h2 style={{ margin: "0 0 12px", color: "#fff", fontSize: 20 }}>评分记录</h2>
+        {!selectedId ? (
+          <p style={{ color: "rgba(255,255,255,0.48)" }}>请先在上方选择壁纸</p>
+        ) : loadingRatings ? (
+          <p style={{ color: "rgba(255,255,255,0.48)" }}>加载中...</p>
+        ) : ratings.length === 0 ? (
+          <p style={{ color: "rgba(255,255,255,0.48)" }}>暂无评分记录</p>
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr>
+                  <th style={thStyle}>ID</th>
+                  <th style={thStyle}>用户</th>
+                  <th style={thStyle}>分数</th>
+                  <th style={thStyle}>更新时间</th>
+                  <th style={thStyle}>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ratings.map((item) => (
+                  <tr key={item.id}>
+                    <td style={tdStyle}>{item.id}</td>
+                    <td style={tdStyle}>{item.username}</td>
+                    <td style={tdStyle}>{item.score}</td>
+                    <td style={tdStyle}>{item.updatedAt || item.createdAt || "-"}</td>
+                    <td style={tdStyle}>
+                      <button
+                        className="cursor-pointer"
+                        style={{ borderRadius: 8, border: "none", padding: "6px 12px", backgroundColor: "rgba(255,69,58,0.16)", color: "#ff453a" }}
+                        onClick={() => removeRating(item.id)}
+                      >
+                        删除
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-            <button
-              className="cursor-pointer"
-              style={{ borderRadius: 8, border: "none", padding: "8px 14px", backgroundColor: "var(--apple-blue)", color: "#fff" }}
-              onClick={saveMetadata}
-            >
-              保存元数据
-            </button>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "180px 1fr auto", gap: 10 }}>
-            <select value={reviewAction} onChange={(e) => setReviewAction(e.target.value as "approve" | "reject" | "delist" | "relist")} style={inputStyle}>
-              <option value="approve">approve</option>
-              <option value="reject">reject</option>
-              <option value="delist">delist</option>
-              <option value="relist">relist</option>
-            </select>
-            <input value={reviewReason} onChange={(e) => setReviewReason(e.target.value)} placeholder="审核备注 / 拒绝原因" style={inputStyle} />
-            <button
-              className="cursor-pointer"
-              style={{ borderRadius: 8, border: "none", padding: "8px 14px", backgroundColor: "rgba(10,132,255,0.2)", color: "#0a84ff" }}
-              onClick={submitReview}
-            >
-              执行审核
-            </button>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

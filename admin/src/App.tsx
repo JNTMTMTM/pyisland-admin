@@ -22,6 +22,8 @@ import ApiStatusPage from "./pages/ApiStatus";
 import ApiStatusManage from "./pages/ApiStatusManage";
 import ApiDebug from "./pages/ApiDebug";
 import WallpaperReview from "./pages/WallpaperReview";
+import WallpaperReportManage from "./pages/WallpaperReportManage";
+import WallpaperRatingManage from "./pages/WallpaperRatingManage";
 import TagManage from "./pages/TagManage";
 
 /**
@@ -62,6 +64,8 @@ export default function App() {
           <Route path="/api-message" element={<ApiStatusManage />} />
           <Route path="/api-debug" element={<ApiDebug />} />
           <Route path="/wallpapers/review" element={<WallpaperReview />} />
+          <Route path="/wallpapers/reports" element={<WallpaperReportManage />} />
+          <Route path="/wallpapers/ratings" element={<WallpaperRatingManage />} />
           <Route path="/tags" element={<TagManage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

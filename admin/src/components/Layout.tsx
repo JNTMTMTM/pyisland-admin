@@ -45,6 +45,8 @@ const navItems = [
     label: "内容管理",
     children: [
       { label: "壁纸审核", path: "/wallpapers/review" },
+      { label: "举报处理", path: "/wallpapers/reports" },
+      { label: "评分管理", path: "/wallpapers/ratings" },
       { label: "标签管理", path: "/tags" },
     ],
   },
