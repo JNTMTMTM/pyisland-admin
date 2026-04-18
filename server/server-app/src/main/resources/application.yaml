@@ -19,6 +19,14 @@ spring:
       password: ${REDIS_PASSWORD}
       database: ${REDIS_DATABASE}
       timeout: ${REDIS_TIMEOUT}
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    listener:
+      simple:
+        default-requeue-rejected: true
   servlet:
     multipart:
       max-file-size: 5MB
@@ -56,6 +64,11 @@ cloudflare:
     public-domain: ${R2_PUBLIC_DOMAIN}
   turnstile:
     secret-key: ${TURNSTILE_SECRET_KEY}
+
+resend:
+  api-key: ${RESEND_API_KEY}
+  from: ${RESEND_FROM}
+  endpoint: ${RESEND_ENDPOINT:https://api.resend.com/emails}
 
 mybatis:
   mapper-locations: classpath*:mapper/*.xml
